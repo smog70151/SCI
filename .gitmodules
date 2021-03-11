@@ -1,0 +1,7 @@
+[submodule "extern/SEAL"]
+	path = extern/SEAL
+	url = https://github.com/microsoft/SEAL.git
+	branch = 3.3.2
+[submodule "extern/eigen"]
+	path = extern/eigen
+	url = https://github.com/libigl/eigen.git
