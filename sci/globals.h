@@ -316,9 +316,9 @@ Bitlength 41 prime: 2199023190017
 #endif
 #endif
 
-const int32_t baseForRelu = 4;
+const int32_t SCI_baseForRelu = 4;
 int32_t SCI_party = 0;
-extern const int numThreads = 4;
+extern const int SCI_numThreads = 4;
 
 #ifdef LOG_LAYERWISE
 uint64_t ConvTimeInMilliSec = 0;
@@ -360,22 +360,22 @@ sci::OTPack<sci::NetIO> *otpack;
 // For multiThreading
 // NOTE : The otInstances are defined as follows:
 // 	If threadNum is even, then ALICE is sender and BOB is receiver ; reverse if threadNum is odd
-// 	Here threadNum \in [0,numThreads)
-sci::NetIO* ioArr[numThreads];
-sci::IKNP<sci::NetIO>* otInstanceArr[numThreads];
-sci::OTPack<sci::NetIO>* otpackArr[numThreads];
-sci::KKOT<sci::NetIO>* kkotInstanceArr[numThreads];
+// 	Here threadNum \in [0,SCI_numThreads)
+sci::NetIO* ioArr[SCI_numThreads];
+sci::IKNP<sci::NetIO>* otInstanceArr[SCI_numThreads];
+sci::OTPack<sci::NetIO>* otpackArr[SCI_numThreads];
+sci::KKOT<sci::NetIO>* kkotInstanceArr[SCI_numThreads];
 sci::PRG128* prg128Instance;
-sci::PRG128* prgInstanceArr[numThreads];
+sci::PRG128* prgInstanceArr[SCI_numThreads];
 
 #include "sci/linear-primary.h"
-Matmul<sci::NetIO, intType, sci::IKNP<sci::NetIO>>* matmulInstanceArr[numThreads];
+Matmul<sci::NetIO, intType, sci::IKNP<sci::NetIO>>* matmulInstanceArr[SCI_numThreads];
 Matmul<sci::NetIO, intType, sci::IKNP<sci::NetIO>>* matmulImpl;
 #include "sci/NonLinear/relu-interface.h"
-ReLUProtocol<sci::NetIO, intType>* reluImplArr[numThreads];
+ReLUProtocol<sci::NetIO, intType>* reluImplArr[SCI_numThreads];
 ReLUProtocol<sci::NetIO, intType>* reluImpl;
 #include "sci/NonLinear/maxpool.h"
-MaxPoolProtocol<sci::NetIO, intType>* maxpoolImplArr[numThreads];
+MaxPoolProtocol<sci::NetIO, intType>* maxpoolImplArr[SCI_numThreads];
 MaxPoolProtocol<sci::NetIO, intType>* maxpoolImpl;
 #include "sci/NonLinear/argmax.h"
 #include "sci/LinearHE/conv-field.h"
@@ -393,7 +393,7 @@ ElemWiseProdField* heProdImpl;
 
 ArgMaxProtocol<sci::NetIO, intType>* argmaxImpl;
 std::chrono::time_point<std::chrono::high_resolution_clock> startTimeTracker;
-uint64_t communicationTracker[numThreads];
+uint64_t communicationTracker[SCI_numThreads];
 
 void checkIfUsingEigen(){
 #ifdef USE_EIGEN

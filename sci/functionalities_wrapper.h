@@ -111,19 +111,19 @@ void MatMul2D(int32_t s1, int32_t s2, int32_t s3, const intType* A, const intTyp
     }
 
 #else //MULTITHREADED_MATMUL is ON
-    intType* C_ans_arr[numThreads];
-    std::thread matmulThreads[numThreads];
-    for(int i=0;i<numThreads;i++){
+    intType* C_ans_arr[SCI_numThreads];
+    std::thread matmulThreads[SCI_numThreads];
+    for(int i=0;i<SCI_numThreads;i++){
         C_ans_arr[i] = new intType[s1*s3];
-        matmulThreads[i] = std::thread(funcMatmulThread,i,numThreads,s1,s2,s3,A,B,C_ans_arr[i],partyWithAInAB_mul);
+        matmulThreads[i] = std::thread(funcMatmulThread,i,SCI_numThreads,s1,s2,s3,A,B,C_ans_arr[i],partyWithAInAB_mul);
     }
-    for(int i=0;i<numThreads;i++){
+    for(int i=0;i<SCI_numThreads;i++){
         matmulThreads[i].join();
     }
     for(int i=0;i<s1*s3;i++){
         C[i] = 0;
     }
-    for(int i=0;i<numThreads;i++){
+    for(int i=0;i<SCI_numThreads;i++){
         for(int j=0;j<s1*s3;j++){
             C[j] += C_ans_arr[i][j];
         }
@@ -332,19 +332,19 @@ void Relu(int32_t size, intType* inArr, intType* outArr, int sf, bool doTruncati
 #ifndef MULTITHREADED_NONLIN
     reluImpl->relu(tempOutp, tempInp, eightDivElemts, nullptr);
 #else
-    std::thread relu_threads[numThreads];
-    int chunk_size = (eightDivElemts/(8*numThreads))*8;
-    for (int i = 0; i < numThreads; ++i) {
+    std::thread relu_threads[SCI_numThreads];
+    int chunk_size = (eightDivElemts/(8*SCI_numThreads))*8;
+    for (int i = 0; i < SCI_numThreads; ++i) {
         int offset = i*chunk_size;
         int lnum_relu;
-        if (i == (numThreads - 1)) {
+        if (i == (SCI_numThreads - 1)) {
             lnum_relu = eightDivElemts - offset;
         } else {
             lnum_relu = chunk_size;
         }
         relu_threads[i] = std::thread(funcReLUThread, i, tempOutp+offset, tempInp+offset, lnum_relu, nullptr, false);
     }
-    for (int i = 0; i < numThreads; ++i) {
+    for (int i = 0; i < SCI_numThreads; ++i) {
         relu_threads[i].join();
     }
 #endif
@@ -534,12 +534,12 @@ void MaxPool(int32_t N, int32_t H, int32_t W, int32_t C,
 #ifndef MULTITHREADED_NONLIN
     maxpoolImpl->funcMaxMPC(rows, cols, reInpArr, maxi, maxiIdx);
 #else
-    std::thread maxpool_threads[numThreads];
-    int chunk_size = (rows/(8*numThreads))*8;
-    for (int i = 0; i < numThreads; ++i) {
+    std::thread maxpool_threads[SCI_numThreads];
+    int chunk_size = (rows/(8*SCI_numThreads))*8;
+    for (int i = 0; i < SCI_numThreads; ++i) {
         int offset = i*chunk_size;
         int lnum_rows;
-        if (i == (numThreads - 1)) {
+        if (i == (SCI_numThreads - 1)) {
             lnum_rows = rows - offset;
         } else {
             lnum_rows = chunk_size;
@@ -547,7 +547,7 @@ void MaxPool(int32_t N, int32_t H, int32_t W, int32_t C,
         maxpool_threads[i] = std::thread(funcMaxpoolThread, i, lnum_rows, cols,
                 reInpArr+offset*cols, maxi+offset, maxiIdx+offset);
     }
-    for (int i = 0; i < numThreads; ++i) {
+    for (int i = 0; i < SCI_numThreads; ++i) {
         maxpool_threads[i].join();
     }
 #endif
@@ -1016,8 +1016,8 @@ void ElemWiseActModelVectorMult(int32_t size, intType* inArr, intType* multArrVe
 
 #ifdef SCI_OT
 #ifdef MULTITHREADED_DOTPROD
-    std::thread dotProdThreads[numThreads];
-    int chunk_size = (size/numThreads);
+    std::thread dotProdThreads[SCI_numThreads];
+    int chunk_size = (size/SCI_numThreads);
     intType* inputArrPtr;
     if (SCI_party==SCI_SERVER){
         inputArrPtr = multArrVec;
@@ -1025,19 +1025,19 @@ void ElemWiseActModelVectorMult(int32_t size, intType* inArr, intType* multArrVe
     else{
         inputArrPtr = inArr;
     }
-    for (int i = 0; i < numThreads; i++) {
+    for (int i = 0; i < SCI_numThreads; i++) {
         int offset = i*chunk_size;
         int curSize;
-        if (i == (numThreads - 1)) {
+        if (i == (SCI_numThreads - 1)) {
             curSize = size - offset;
         } 
         else{
             curSize = chunk_size;
         }
         dotProdThreads[i] = std::thread(funcDotProdThread, 
-                i, numThreads, curSize, inputArrPtr+offset, outputArr+offset);
+                i, SCI_numThreads, curSize, inputArrPtr+offset, outputArr+offset);
     }
-    for (int i = 0; i < numThreads; ++i) {
+    for (int i = 0; i < SCI_numThreads; ++i) {
         dotProdThreads[i].join();
     }
 #else
@@ -1226,7 +1226,7 @@ void ScaleUp(int32_t size, intType* arr, int32_t sf){
 
 void StartComputation(){
     startTimeTracker = std::chrono::high_resolution_clock::now();
-    for(int i=0;i<numThreads;i++){
+    for(int i=0;i<SCI_numThreads;i++){
         auto temp = ioArr[i]->counter;
         communicationTracker[i] = temp;
         std::cout<<"Thread i = "<<i<<", total data sent till now = "<<temp<<std::endl;
@@ -1240,7 +1240,7 @@ void EndComputation(){
     auto endTimer = std::chrono::high_resolution_clock::now();
     auto execTimeInMilliSec = std::chrono::duration_cast<std::chrono::milliseconds>(endTimer-startTimeTracker).count();
     uint64_t totalComm = 0;
-    for(int i=0;i<numThreads;i++){
+    for(int i=0;i<SCI_numThreads;i++){
         auto temp = ioArr[i]->counter;
         std::cout<<"Thread i = "<<i<<", total data sent till now = "<<temp<<std::endl;
         totalComm += (temp - communicationTracker[i]);
@@ -1321,8 +1321,8 @@ void EndComputation(){
         result << get_network_label(network_name) << ","
             << (isNativeRing ? "Ring": "Field") << ","
             << bitlength << ","
-            << baseForRelu << ","
-            << numThreads << ","
+            << SCI_baseForRelu << ","
+            << SCI_numThreads << ","
             << execTimeInMilliSec/1000.0 << ","
             << (totalComm+totalCommClient)/(1.0*(1ULL<<20)) << ","
             << ConvTimeInMilliSec/1000.0 << ","

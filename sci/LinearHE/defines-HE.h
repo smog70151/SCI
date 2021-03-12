@@ -26,7 +26,7 @@ SOFTWARE.
 
 extern uint64_t prime_mod;
 extern int32_t bitlength;
-extern const int32_t numThreads;
+extern const int32_t SCI_numThreads;
 
 const uint64_t POLY_MOD_DEGREE = 8192;
 const uint64_t POLY_MOD_DEGREE_LARGE = 32768;

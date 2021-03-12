@@ -260,16 +260,16 @@ inline uint64_t all1Mask(int x){
 #define IO_TILL_NOW (io->counter - dataSentCtr__1);
 #define RESET_IO dataSentCtr__1 = io->counter;
 
-#define INIT_ALL_IO_DATA_SENT uint64_t __ioStartTracker[::numThreads];\
-        for(int __thrdCtr = 0; __thrdCtr < ::numThreads; __thrdCtr++){\
+#define INIT_ALL_IO_DATA_SENT uint64_t __ioStartTracker[::SCI_numThreads];\
+        for(int __thrdCtr = 0; __thrdCtr < ::SCI_numThreads; __thrdCtr++){\
             __ioStartTracker[__thrdCtr] = ::ioArr[__thrdCtr]->counter;\
         }
 #define FIND_ALL_IO_TILL_NOW(var) uint64_t __curComm = 0;\
-        for(int __thrdCtr = 0; __thrdCtr < ::numThreads; __thrdCtr++){\
+        for(int __thrdCtr = 0; __thrdCtr < ::SCI_numThreads; __thrdCtr++){\
              __curComm += ((::ioArr[__thrdCtr]->counter) - __ioStartTracker[__thrdCtr]);\
         }\
         var = __curComm;
-#define RESET_ALL_IO for(int __thrdCtr = 0; __thrdCtr < ::numThreads; __thrdCtr++){\
+#define RESET_ALL_IO for(int __thrdCtr = 0; __thrdCtr < ::SCI_numThreads; __thrdCtr++){\
             __ioStartTracker[__thrdCtr] = ::ioArr[__thrdCtr]->counter;\
         }
 

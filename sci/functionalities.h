@@ -317,7 +317,7 @@ void funcTruncateTwoPowerRing(int curParty,
 				carryBitCompArr[i] = (sci::all1Mask(consSF)) - carryBitCompArr[i];
 			}
 		}
-		MillionaireProtocol millionaire(curParty,consSF,baseForRelu,curio,curotpack);
+		MillionaireProtocol millionaire(curParty,consSF,SCI_baseForRelu,curio,curotpack);
 		millionaire.compare(carryBitCompAns,carryBitCompArr,size);
 	}
 
@@ -431,12 +431,12 @@ void funcTruncateTwoPowerRingWrapper(int size, const intType* inp, intType* outp
 {
 	assert(size%8==0);
 #ifdef MULTITHREADED_TRUNC
-	std::thread truncThreads[numThreads];
-    int chunk_size = (size/(8*numThreads))*8;
-    for (int i = 0; i < numThreads; i++) {
+	std::thread truncThreads[SCI_numThreads];
+    int chunk_size = (size/(8*SCI_numThreads))*8;
+    for (int i = 0; i < SCI_numThreads; i++) {
         int offset = i*chunk_size;
         int curSize;
-        if (i == (numThreads - 1)) {
+        if (i == (SCI_numThreads - 1)) {
             curSize = size - offset;
         } 
         else {
@@ -452,7 +452,7 @@ void funcTruncateTwoPowerRingWrapper(int size, const intType* inp, intType* outp
         							curSize, inp+offset, outp+offset, consSF, msbShareArg, doCarryBitCalculation
         							);
     }
-    for (int i = 0; i < numThreads; ++i) {
+    for (int i = 0; i < SCI_numThreads; ++i) {
 		truncThreads[i].join();
     }
 #else
@@ -651,7 +651,7 @@ void funcAvgPoolTwoPowerRing(int curParty,
 		}
 	}
 
-	MillionaireProtocol millionaire(curParty,bitsForA-1,baseForRelu,curio,curotpack);
+	MillionaireProtocol millionaire(curParty,bitsForA-1,SCI_baseForRelu,curio,curotpack);
 	millionaire.compare(carryBit,radixCompValues,totalComp);
 	for(int i=0;i<totalComp;i++){
 		localShareA_all3_drelu[i] = (localShareA_all3_drelu[i] + carryBit[i])&1;
@@ -711,12 +711,12 @@ void funcAvgPoolTwoPowerRingWrapper(int size, const intType* inp, intType* outp,
 {
 	assert(size%8==0);
 #ifdef MULTITHREADED_TRUNC
-	std::thread truncThreads[numThreads];
-    int chunk_size = (size/(8*numThreads))*8;
-    for (int i = 0; i < numThreads; i++) {
+	std::thread truncThreads[SCI_numThreads];
+    int chunk_size = (size/(8*SCI_numThreads))*8;
+    for (int i = 0; i < SCI_numThreads; i++) {
         int offset = i*chunk_size;
         int curSize;
-        if (i == (numThreads - 1)) {
+        if (i == (SCI_numThreads - 1)) {
             curSize = size - offset;
         } 
         else {
@@ -730,7 +730,7 @@ void funcAvgPoolTwoPowerRingWrapper(int size, const intType* inp, intType* outp,
         							curSize, inp+offset, outp+offset, divisor
         							);
     }
-    for (int i = 0; i < numThreads; ++i) {
+    for (int i = 0; i < SCI_numThreads; ++i) {
 		truncThreads[i].join();
     }
 #else
@@ -932,7 +932,7 @@ void funcFieldDiv(int curParty,
 		}
 	}
 
-	MillionaireProtocol millionaire(curParty,bitsForA-1,baseForRelu,curio,curotpack);
+	MillionaireProtocol millionaire(curParty,bitsForA-1,SCI_baseForRelu,curio,curotpack);
 	millionaire.compare(carryBit,radixCompValues,totalComp);
 	for(int i=0;i<totalComp;i++){
 		localShareA_all3_drelu[i] = (localShareA_all3_drelu[i] + carryBit[i])&1;
@@ -990,12 +990,12 @@ void funcFieldDivWrapper(int size, const intType* inp, intType* outp, intType di
 {
 	assert(size%8==0);
 #ifdef MULTITHREADED_TRUNC
-	std::thread truncThreads[numThreads];
-    int chunk_size = (size/(8*numThreads))*8;
-    for (int i = 0; i < numThreads; i++) {
+	std::thread truncThreads[SCI_numThreads];
+    int chunk_size = (size/(8*SCI_numThreads))*8;
+    for (int i = 0; i < SCI_numThreads; i++) {
         int offset = i*chunk_size;
         int curSize;
-        if (i == (numThreads - 1)) {
+        if (i == (SCI_numThreads - 1)) {
             curSize = size - offset;
         } 
         else {
@@ -1011,7 +1011,7 @@ void funcFieldDivWrapper(int size, const intType* inp, intType* outp, intType di
         							curSize, inp+offset, outp+offset, divisor, msbShareArg
         							);
     }
-    for (int i = 0; i < numThreads; ++i) {
+    for (int i = 0; i < SCI_numThreads; ++i) {
 		truncThreads[i].join();
     }
 #else

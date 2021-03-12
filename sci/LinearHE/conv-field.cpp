@@ -125,7 +125,7 @@ vector<Ciphertext> HE_preprocess_noise(
     vector<Ciphertext> enc_noise(data.out_ct);
 
     // Puncture the vector with 0s where an actual convolution result value lives
-#pragma omp parallel for num_threads(numThreads) schedule(static)
+#pragma omp parallel for num_threads(SCI_numThreads) schedule(static)
     for (int ct_idx = 0; ct_idx < data.out_ct; ct_idx++) {
         int out_base = 2 * ct_idx * data.chans_per_half;
         for (int out_c = 0; out_c < 2*data.chans_per_half
@@ -206,7 +206,7 @@ vector<vector<Ciphertext>> filter_rotations(
 
     // For each element of the filter, rotate the padded image s.t. the top
     // left position always contains the first element of the image it touches
-#pragma omp parallel for num_threads(numThreads) schedule(static) collapse(2)
+#pragma omp parallel for num_threads(SCI_numThreads) schedule(static) collapse(2)
     for (int f = 0; f < data.filter_size; f++) {
         for (int ct_idx = 0; ct_idx < input.size(); ct_idx++) {
             int f_row = f / data.filter_w;
@@ -229,7 +229,7 @@ vector<Ciphertext> HE_encrypt(
         BatchEncoder &batch_encoder)
 {
     vector<Ciphertext> ct(pt.size());
-#pragma omp parallel for num_threads(numThreads) schedule(static)
+#pragma omp parallel for num_threads(SCI_numThreads) schedule(static)
     for (int ct_idx = 0; ct_idx < pt.size(); ct_idx++) {
         Plaintext tmp;
         batch_encoder.encode(pt[ct_idx], tmp);
@@ -251,7 +251,7 @@ vector<vector<vector<Plaintext>>> HE_preprocess_filters_OP(
     // Since a half in a permutation may have a variable number of rotations we
     // use this index to track where we are at in the masks tensor
     // Build each half permutation as well as it's inward rotations
-#pragma omp parallel for num_threads(numThreads) schedule(static) collapse(2)
+#pragma omp parallel for num_threads(SCI_numThreads) schedule(static) collapse(2)
     for (int perm = 0; perm < data.half_perms; perm += 2) {
         for (int rot = 0; rot < data.half_rots; rot++) {
             int conv_idx = perm * data.half_rots;
@@ -343,7 +343,7 @@ vector<Ciphertext> HE_conv_OP(
     vector<Ciphertext> result(data.convs);
 
     // Multiply masks and add for each convolution
-#pragma omp parallel for num_threads(numThreads) schedule(static)
+#pragma omp parallel for num_threads(SCI_numThreads) schedule(static)
     for (int conv_idx = 0; conv_idx < data.convs; conv_idx++) {
         result[conv_idx] = zero;
         for (int ct_idx = 0; ct_idx < data.inp_ct; ct_idx++) {
@@ -382,7 +382,7 @@ vector<Ciphertext> HE_output_rotations(
     }
 
     // For each half perm, add up all the inside channels of each half
-#pragma omp parallel for num_threads(numThreads) schedule(static)
+#pragma omp parallel for num_threads(SCI_numThreads) schedule(static)
     for (int perm = 0; perm < data.half_perms; perm+=2) {
         partials[perm] = zero_next_level;
         if (data.half_perms > 1)
@@ -450,7 +450,7 @@ uint64_t** HE_decrypt(
     // Decrypt ciphertext
     vector<vector<uint64_t>> result(data.out_ct);
 
-#pragma omp parallel for num_threads(numThreads) schedule(static)
+#pragma omp parallel for num_threads(SCI_numThreads) schedule(static)
     for (int ct_idx = 0; ct_idx < data.out_ct; ct_idx++) {
         Plaintext tmp;
         decryptor.decrypt(enc_result[ct_idx], tmp);
