@@ -73,7 +73,7 @@ uint64_t* fc_postprocess(
         seal::Decryptor& decryptor);
 
 class FCField { public:
-    int party;
+    int SCI_party;
     sci::NetIO* io;
     FCMetadata data;
     std::shared_ptr<seal::SEALContext> context;
@@ -85,7 +85,7 @@ class FCField { public:
     seal::Ciphertext* zero;
     int slot_count;
 
-    FCField(int party, sci::NetIO* io);
+    FCField(int SCI_party, sci::NetIO* io);
 
     ~FCField();
 

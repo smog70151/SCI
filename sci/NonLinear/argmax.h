@@ -33,7 +33,7 @@ class ArgMaxProtocol
 		sci::OTPack<IO>* otpack = nullptr;
 		ReLURingProtocol<IO, type>* relu_oracle = nullptr;
 		ReLUFieldProtocol<IO, type>* relu_field_oracle = nullptr;
-		int party;
+		int SCI_party;
 		int algeb_str;
 		int l, b;
 		int num_cmps;
@@ -47,7 +47,7 @@ class ArgMaxProtocol
 
 		//Constructor
 		ArgMaxProtocol(
-				int party,
+				int SCI_party,
 				int algeb_str,
 				IO* io,
 				int l,
@@ -56,7 +56,7 @@ class ArgMaxProtocol
 				sci::OTPack<IO>* otpack,
 				ReLUProtocol<IO, type>* relu_obj = nullptr)
 		{
-			this->party = party;
+			this->SCI_party = SCI_party;
 			this->algeb_str = algeb_str;
 			this->io = io;
 			this->l = l;
@@ -67,7 +67,7 @@ class ArgMaxProtocol
 			this->otpack = otpack;
 			if(algeb_str == RING){
 				if(relu_obj == nullptr){
-					this->relu_oracle = new ReLURingProtocol<IO, type>(party, RING, io, l, b, otpack);
+					this->relu_oracle = new ReLURingProtocol<IO, type>(SCI_party, RING, io, l, b, otpack);
 					createdReluObj = true;
 				}
 				else{
@@ -76,7 +76,7 @@ class ArgMaxProtocol
 			}
 			else{
 				if(relu_obj == nullptr){
-					this->relu_field_oracle = new ReLUFieldProtocol<IO, type>(party, FIELD, io, l, b, this->prime_mod, otpack);
+					this->relu_field_oracle = new ReLUFieldProtocol<IO, type>(SCI_party, FIELD, io, l, b, this->prime_mod, otpack);
 					createdReluObj = true;
 				}
 				else{
@@ -132,7 +132,7 @@ class ArgMaxProtocol
 				input_temp[i] = inpArr[i];
 				input_argmax_temp[i] = 0;
 			}
-			if(party == sci::ALICE){
+			if(SCI_party == sci::ALICE){
 				for(type i=0; i<(type)size; i++){
 					input_argmax_temp[i] = i;
 				}
@@ -262,7 +262,7 @@ class ArgMaxProtocol
 				this->relu_oracle->triple_gen->prg->random_data(additive_masks, 2*num_relu*sizeof(type));
 			}
 
-			if(party == sci::ALICE)
+			if(SCI_party == sci::ALICE)
 			{
 				for(int i=0; i<num_relu; i++){
 					set_argmax_end_ot_messages_super_32(ot_messages_0+i, ot_messages_1+i, share+i, indexshare+i, drelu_ans+i, ((type*)additive_masks)+i, num_relu);
@@ -276,7 +276,7 @@ class ArgMaxProtocol
 					relu_oracle->otpack->iknp_reversed->recv(received_shares, (bool*)drelu_ans, num_relu);
 				}
 			}
-			else // party = sci::BOB
+			else // SCI_party = sci::BOB
 			{
 				for(int i=0; i<num_relu; i++){
 					set_argmax_end_ot_messages_super_32(ot_messages_0+i, ot_messages_1+i, share+i, indexshare+i, drelu_ans+i, ((type*)additive_masks)+i, num_relu);
@@ -381,7 +381,7 @@ class ArgMaxProtocol
 			else{ //RING
 				this->relu_oracle->triple_gen->prg->random_data(additive_masks, 2*num_relu*sizeof(type));
 			}
-			if(party == sci::ALICE)
+			if(SCI_party == sci::ALICE)
 			{
 				for(int i=0; i<num_relu; i++){
 					set_argmax_end_ot_messages_sub_32(ot_messages[i], share+i, indexshare+i, drelu_ans+i, ((type*)additive_masks)+i, num_relu);
@@ -395,7 +395,7 @@ class ArgMaxProtocol
 					relu_oracle->otpack->iknp_reversed->recv(received_shares, drelu_ans, num_relu, 64);
 				}
 			}
-			else //party = sci::BOB
+			else //SCI_party = sci::BOB
 			{
 				for(int i=0; i<num_relu; i++){
 					set_argmax_end_ot_messages_sub_32(ot_messages[i], share+i, indexshare+i, drelu_ans+i, ((type*)additive_masks)+i, num_relu);

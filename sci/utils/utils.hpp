@@ -132,13 +132,13 @@ inline std::string hex_to_binary(std::string hex) {
         bin += hex_char_to_bin(hex[i]);
     return bin;
 }
-inline void parse_party_and_port(char ** arg, int argc, int * party, int * port) {
+inline void parse_party_and_port(char ** arg, int argc, int * SCI_party, int * port) {
     if (argc == 1)
-        error("ERROR: argc = 1, need two argsm party ID {1,2} and port.");
+        error("ERROR: argc = 1, need two argsm SCI_party ID {1,2} and port.");
     else if (argc == 2)
-        *party = atoi(arg[1]);
+        *SCI_party = atoi(arg[1]);
     else if (argc >= 3) {
-        *party = atoi (arg[1]);
+        *SCI_party = atoi (arg[1]);
         *port = atoi (arg[2]);
     }
 }

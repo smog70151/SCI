@@ -36,7 +36,7 @@ public:
 	sci::OTPack<IO>* otpack;
 	TripleGenerator<IO>* triple_gen = nullptr;
 	MillionaireProtocol<IO>* millionaire = nullptr;
-	int party;
+	int SCI_party;
 	int algeb_str;
 	int l, b;
 	int num_cmps;
@@ -53,20 +53,20 @@ public:
 	
 	//Constructor
 	ReLURingProtocol(
-			int party, 
+			int SCI_party, 
 			int algeb_str, 
 			IO* io, 
 			int l, 
 			int b, 
       sci::OTPack<IO>* otpack)
 	{
-		this->party = party;
+		this->SCI_party = SCI_party;
 		this->algeb_str = algeb_str;
 		this->io = io;
 		this->l = l;
 		this->b = b;
 		this->otpack = otpack;	
-		this->millionaire = new MillionaireProtocol<IO>(party, l-1, b, io, otpack);
+		this->millionaire = new MillionaireProtocol<IO>(SCI_party, l-1, b, io, otpack);
 		this->triple_gen = this->millionaire->triple_gen;
 		configure();
 	}
@@ -173,7 +173,7 @@ public:
 		
 		type temp;
 
-		switch (this->party){
+		switch (this->SCI_party){
 			case sci::ALICE: {
 				for(int i=0; i<num_relu; i++){	
 					array64[i] = array_type[i] + 0ULL;
@@ -215,7 +215,7 @@ public:
 		uint64_t* additive_masks = new uint64_t[num_relu];
 		uint64_t* received_shares = new uint64_t[num_relu];
 		this->triple_gen->prg->random_data(additive_masks, num_relu*sizeof(type));
-		switch (this->party) {
+		switch (this->SCI_party) {
 			case sci::ALICE: {
 				for(int i=0; i<num_relu; i++){
 					set_relu_end_ot_messages(ot_messages[i], share+i, msb_local_share+i, ((type*)additive_masks)+i);

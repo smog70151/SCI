@@ -34,7 +34,7 @@ public:
 	TripleGenerator<IO>* triple_gen = nullptr;
 	ReLURingProtocol<IO, type>* relu_oracle = nullptr;
 	ReLUFieldProtocol<IO, type>* relu_field_oracle = nullptr;
-	int party;
+	int SCI_party;
 	int algeb_str;
 	int l, b;
 	int num_cmps;
@@ -43,7 +43,7 @@ public:
 
 	//Constructor
 	MaxPoolProtocol(
-			int party, 
+			int SCI_party, 
 			int algeb_str, 
 			IO* io, 
 			int l, 
@@ -52,7 +52,7 @@ public:
       sci::OTPack<IO> *otpack, 
 			ReLUProtocol<IO, type>* relu_obj = nullptr)
 	{
-		this->party = party;
+		this->SCI_party = SCI_party;
 		this->algeb_str = algeb_str;
 		this->io = io;
 		this->l = l;
@@ -61,14 +61,14 @@ public:
     this->otpack = otpack;
 		if(algeb_str == RING){
 			if(relu_obj == nullptr){
-                this->relu_oracle = new ReLURingProtocol<IO, type>(party, RING, io, l, b, otpack);
+                this->relu_oracle = new ReLURingProtocol<IO, type>(SCI_party, RING, io, l, b, otpack);
 			} else {
                 this->relu_oracle = (ReLURingProtocol<IO, type>*) relu_obj;
 			}
 		}
 		else{
 			if(relu_obj == nullptr){
-                this->relu_field_oracle = new ReLUFieldProtocol<IO, type>(party, FIELD, io, l, b, this->prime_mod, otpack);
+                this->relu_field_oracle = new ReLUFieldProtocol<IO, type>(SCI_party, FIELD, io, l, b, this->prime_mod, otpack);
 			}
 			else{
                 this->relu_field_oracle = (ReLUFieldProtocol<IO, type>*) relu_obj;
@@ -153,7 +153,7 @@ public:
 			bool computeMaxIdx=false)
 	{
 		type* otherPartyData = new type[rows*cols];
-		if (party==SERVER){
+		if (SCI_party==SCI_SERVER){
 			io->send_data(inpArr, sizeof(type)*rows*cols);
 			for(int i=0;i<rows;i++){
 				maxi[i] = 0;

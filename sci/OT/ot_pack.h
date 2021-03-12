@@ -40,30 +40,30 @@ public:
 	SplitKKOT<T> *kkot_4;
 	SplitKKOT<T> *kkot_16;
 	SplitKKOT<T> *kkot_8;
-	// iknp_straight and iknp_reversed: party
+	// iknp_straight and iknp_reversed: SCI_party
 	// acts as sender in straight and receiver in reversed.
 	// Needed for MUX calls.
 	SplitIKNP<T> *iknp_straight;
 	SplitIKNP<T> *iknp_reversed;
 	T *io;
-	int beta, r, l, party;
+	int beta, r, l, SCI_party;
 	bool do_setup = false;
 
-	OTPack(T* io, int party, int beta, int l, bool do_setup = true){
+	OTPack(T* io, int SCI_party, int beta, int l, bool do_setup = true){
 		this->beta = beta;
 		this->l = l;
 		this->r = l%beta;
-		this->party = party;
+		this->SCI_party = SCI_party;
 		this->do_setup = do_setup;
 		this->io = io;
 
-		kkot_beta = new SplitKKOT<NetIO>(party, io, 1<<beta);
-		kkot_4 = new SplitKKOT<NetIO>(party, io, 4);
-        kkot_16 = new SplitKKOT<NetIO>(party, io, 16);
-        kkot_8 = new SplitKKOT<NetIO>(party, io, 8);
+		kkot_beta = new SplitKKOT<NetIO>(SCI_party, io, 1<<beta);
+		kkot_4 = new SplitKKOT<NetIO>(SCI_party, io, 4);
+        kkot_16 = new SplitKKOT<NetIO>(SCI_party, io, 16);
+        kkot_8 = new SplitKKOT<NetIO>(SCI_party, io, 8);
 
-        iknp_straight = new SplitIKNP<NetIO>(party, io);
-        iknp_reversed = new SplitIKNP<NetIO>(3-party, io);
+        iknp_straight = new SplitIKNP<NetIO>(SCI_party, io);
+        iknp_reversed = new SplitIKNP<NetIO>(3-SCI_party, io);
 
 		if(do_setup){
 			SetupBaseOTs();
@@ -80,7 +80,7 @@ public:
 	}
 
 	void SetupBaseOTs(){
-    switch (party) {
+    switch (SCI_party) {
 			case 1:
 				kkot_beta->setup_send();
 				iknp_straight->setup_send();
@@ -102,12 +102,12 @@ public:
 
 	OTPack<T>* operator=(OTPack<T> *copy_from){
 		assert(this->do_setup == false && copy_from->do_setup == true);
-		OTPack<T> *temp = new OTPack<T>(this->io, copy_from->party, copy_from->beta, copy_from->l, false);
+		OTPack<T> *temp = new OTPack<T>(this->io, copy_from->SCI_party, copy_from->beta, copy_from->l, false);
 		SplitKKOT<T> *kkot_base = copy_from->kkot_beta;
 		SplitIKNP<T> *iknp_s_base = copy_from->iknp_straight;
 		SplitIKNP<T> *iknp_r_base = copy_from->iknp_reversed;
 
-        switch (party) {
+        switch (SCI_party) {
 			case 1:
 				temp->kkot_beta->setup_send(kkot_base->k0, kkot_base->s);
 				temp->iknp_straight->setup_send(iknp_s_base->k0, iknp_s_base->s);
@@ -135,7 +135,7 @@ public:
 		SplitIKNP<T> *iknp_s_base = copy_from->iknp_straight;
 		SplitIKNP<T> *iknp_r_base = copy_from->iknp_reversed;
 
-        switch (this->party) {
+        switch (this->SCI_party) {
 			case 1:
 				this->kkot_beta->setup_send(kkot_base->k0, kkot_base->s);
 				this->iknp_straight->setup_send(iknp_s_base->k0, iknp_s_base->s);

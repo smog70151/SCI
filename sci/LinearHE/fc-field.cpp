@@ -177,18 +177,18 @@ uint64_t* fc_postprocess(
     return result;
 }
 
-FCField::FCField(int party, NetIO* io)
+FCField::FCField(int SCI_party, NetIO* io)
 {
-    this->party = party;
+    this->SCI_party = SCI_party;
     this->io = io;
     this->slot_count = POLY_MOD_DEGREE;
-    generate_new_keys(party, io, slot_count, context, encryptor, decryptor,
+    generate_new_keys(SCI_party, io, slot_count, context, encryptor, decryptor,
             evaluator, encoder, gal_keys, zero);
 }
 
 FCField::~FCField()
 {
-    free_keys(party, encryptor, decryptor, evaluator, encoder, gal_keys, zero);
+    free_keys(SCI_party, encryptor, decryptor, evaluator, encoder, gal_keys, zero);
 }
 
 void FCField::configure()
@@ -243,7 +243,7 @@ void FCField::matrix_multiplication(
     GaloisKeys* gal_keys_;
     Ciphertext* zero_;
     if (slot_count > POLY_MOD_DEGREE) {
-        generate_new_keys(party, io, slot_count, context_, encryptor_, decryptor_,
+        generate_new_keys(SCI_party, io, slot_count, context_, encryptor_, decryptor_,
                 evaluator_, encoder_, gal_keys_, zero_);
     } else {
         context_ = this->context;
@@ -255,7 +255,7 @@ void FCField::matrix_multiplication(
         zero_ = this->zero;
     }
 
-    if (party == BOB)
+    if (SCI_party == BOB)
     {
         vector<uint64_t> vec(common_dim);
         for (int i = 0; i < common_dim; i++) {
@@ -279,7 +279,7 @@ void FCField::matrix_multiplication(
 
         delete[] HE_result;
     }
-    else // party == ALICE
+    else // SCI_party == ALICE
     {
         vector<uint64_t> vec(common_dim);
         for (int i = 0; i < common_dim; i++) {
@@ -353,7 +353,7 @@ void FCField::matrix_multiplication(
         delete[] secret_share;
     }
     if (slot_count > POLY_MOD_DEGREE) {
-        free_keys(party, encryptor_, decryptor_, evaluator_,
+        free_keys(SCI_party, encryptor_, decryptor_, evaluator_,
                 encoder_, gal_keys_, zero_);
     }
 }
@@ -363,7 +363,7 @@ void FCField::verify(
         vector<uint64_t*>* matrix,
         vector<vector<uint64_t>>& C)
 {
-    if (party == BOB)
+    if (SCI_party == BOB)
     {
         io->send_data(vec->data(), data.filter_w * sizeof(uint64_t));
         io->flush();
@@ -371,7 +371,7 @@ void FCField::verify(
             io->send_data(C[i].data(), sizeof(uint64_t));
         }
     }
-    else // party == ALICE
+    else // SCI_party == ALICE
     {
         vector<uint64_t> vec_0(data.filter_w);
         io->recv_data(vec_0.data(), data.filter_w * sizeof(uint64_t));

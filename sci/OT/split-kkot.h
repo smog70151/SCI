@@ -40,7 +40,7 @@ class SplitKKOT : public OT<SplitKKOT<IO>>
 public:
 	OTNP<IO> * base_ot;
 	PRG128 prg;
-	int party;
+	int SCI_party;
 	const int lambda = 256;
 #if __APPLE__
 	int block_size = 1024*8;
@@ -76,12 +76,12 @@ public:
 	IO *io = nullptr;
 
 	SplitKKOT(
-			int party, 
+			int SCI_party, 
 			IO * io, 
 			int N) 
 	{
-		assert(party == ALICE || party == BOB);
-		this->party = party;
+		assert(SCI_party == ALICE || SCI_party == BOB);
+		this->SCI_party = SCI_party;
 		this->io = io;
 		assert(N > 0);
 		this->N = N;
@@ -91,7 +91,7 @@ public:
 		k1 = new block256[lambda];
 		d = new block256[block_size];
 		c_AND_s = new block256[lambda];
-		switch (party) {
+		switch (SCI_party) {
 			case ALICE:
 				h = new uint8_t*[N];
 				h64 = new uint64_t*[N];
@@ -125,7 +125,7 @@ public:
 		delete[] d;
 		if (precomp_masks)
 			delete[] c_AND_s;
-		switch (party) {
+		switch (SCI_party) {
 			case ALICE:
 				for(int i = 0; i < N; i++){
 					delete[] h[i];
@@ -158,7 +158,7 @@ public:
 			c_AND_s = new block256[lambda];
 			precomp_masks = false;
 		}
-		switch (party) {
+		switch (SCI_party) {
 			case ALICE:
 				for(int i = 0; i < N; i++){
 					delete[] h[i];
@@ -175,7 +175,7 @@ public:
 				delete[] r_off;
 				break;
 		}
-		switch (party) {
+		switch (SCI_party) {
 			case ALICE:
 				h = new uint8_t*[N];
 				h64 = new uint64_t*[N];
@@ -250,7 +250,7 @@ public:
 
 	void preprocess() 
 	{
-		switch (party) {
+		switch (SCI_party) {
 			case ALICE:
 				send_pre(counter);
 				got_send_offline(counter);

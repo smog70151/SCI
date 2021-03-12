@@ -61,7 +61,7 @@ void MatMul2D(int32_t s1, int32_t s2, int32_t s3, const intType* A, const intTyp
     
     std::cout<<"Matmul called s1,s2,s3 = "<<s1<<" "<<s2<<" "<<s3<<std::endl;
     int partyWithAInAB_mul = sci::ALICE; //By default, the model is A and server/Alice has it
-                                         // So, in the AB mult, party with A = server and party with B = client.
+                                         // So, in the AB mult, SCI_party with A = server and SCI_party with B = client.
     int partyWithBInAB_mul = sci::BOB;
     if (!modelIsA){
         //Model is B
@@ -72,7 +72,7 @@ void MatMul2D(int32_t s1, int32_t s2, int32_t s3, const intType* A, const intTyp
 #if defined(SCI_OT)
 #ifndef MULTITHREADED_MATMUL
     if (partyWithAInAB_mul==sci::ALICE){
-        if (party==sci::ALICE){
+        if (SCI_party==sci::ALICE){
             matmulImpl->funcOTSenderInputA(s1,s2,s3,A,C,iknpOT);
         }
         else{
@@ -80,7 +80,7 @@ void MatMul2D(int32_t s1, int32_t s2, int32_t s3, const intType* A, const intTyp
         }
     }
     else{
-        if (party==sci::BOB){
+        if (SCI_party==sci::BOB){
             matmulImpl->funcOTSenderInputA(s1,s2,s3,A,C,iknpOTRoleReversed);
         }
         else{
@@ -88,7 +88,7 @@ void MatMul2D(int32_t s1, int32_t s2, int32_t s3, const intType* A, const intTyp
         }
     }
 
-    if (party==sci::ALICE){
+    if (SCI_party==sci::ALICE){
         //Now irrespective of whether A is the model or B is the model and whether
         //	server holds A or B, server should add locally A*B.
         //	
@@ -130,7 +130,7 @@ void MatMul2D(int32_t s1, int32_t s2, int32_t s3, const intType* A, const intTyp
         delete[] C_ans_arr[i];
     }
 
-    if (party==sci::ALICE){
+    if (SCI_party==sci::ALICE){
         intType* CTemp = new intType[s1*s3];
         matmulImpl->ideal_func(s1,s2,s3,A,B,CTemp);
         sci::elemWiseAdd<intType>(s1*s3,C,CTemp,C);
@@ -197,7 +197,7 @@ void MatMul2D(int32_t s1, int32_t s2, int32_t s3, const intType* A, const intTyp
         }
     }
 #endif
-    if (party == SERVER) {
+    if (SCI_party == SCI_SERVER) {
         funcReconstruct2PCCons(nullptr, A, s1*s2);
         funcReconstruct2PCCons(nullptr, B, s2*s3);
         funcReconstruct2PCCons(nullptr, C, s1*s3);
@@ -272,7 +272,7 @@ void ArgMax(int32_t s1, int32_t s2, intType* inArr, intType* outArr)
 #endif
 
 #ifdef VERIFY_LAYERWISE
-    if (party == SERVER) {
+    if (SCI_party == SCI_SERVER) {
         funcReconstruct2PCCons(nullptr, inArr, s1*s2);
         funcReconstruct2PCCons(nullptr, outArr, s1);
     } 
@@ -405,7 +405,7 @@ void Relu(int32_t size, intType* inArr, intType* outArr, int sf, bool doTruncati
     }
 #endif
 
-    if (party == SERVER){
+    if (SCI_party == SCI_SERVER){
         funcReconstruct2PCCons(nullptr, inArr, size);
         funcReconstruct2PCCons(nullptr, tempOutp, size);
         funcReconstruct2PCCons(nullptr, outArr, size);
@@ -591,7 +591,7 @@ void MaxPool(int32_t N, int32_t H, int32_t W, int32_t C,
         }
     }
 #endif
-    if (party == SERVER) {
+    if (SCI_party == SCI_SERVER) {
         funcReconstruct2PCCons(nullptr, inArr, N*imgH*imgW*C);
         funcReconstruct2PCCons(nullptr, outArr, N*H*W*C);
     } 
@@ -755,7 +755,7 @@ void AvgPool(int32_t N, int32_t H, int32_t W, int32_t C,
         }
     }
 #endif
-    if (party == SERVER) {
+    if (SCI_party == SCI_SERVER) {
         funcReconstruct2PCCons(nullptr, inArr, N*imgH*imgW*C);
         funcReconstruct2PCCons(nullptr, outArr, N*H*W*C);
     } 
@@ -895,7 +895,7 @@ void Conv2DWrapper(signedIntType N, signedIntType H, signedIntType W, signedIntT
         }
     }
 #endif
-    if (party == SERVER) {
+    if (SCI_party == SCI_SERVER) {
         funcReconstruct2PCCons(nullptr, inputArr, N*H*W*CI);
         funcReconstruct2PCCons(nullptr, filterArr, FH*FW*CI*CO);
         funcReconstruct2PCCons(nullptr, outArr, N*newH*newW*CO);
@@ -1003,7 +1003,7 @@ void ElemWiseActModelVectorMult(int32_t size, intType* inArr, intType* multArrVe
     INIT_TIMER;
 #endif
 
-    if (party==CLIENT){
+    if (SCI_party==SCI_CLIENT){
         for(int i=0;i<size;i++){
                 assert((multArrVec[i] == 0)
                     && "The semantics of ElemWiseActModelVectorMult dictate multArrVec should be the model and client share should be 0 for it.");
@@ -1019,7 +1019,7 @@ void ElemWiseActModelVectorMult(int32_t size, intType* inArr, intType* multArrVe
     std::thread dotProdThreads[numThreads];
     int chunk_size = (size/numThreads);
     intType* inputArrPtr;
-    if (party==SERVER){
+    if (SCI_party==SCI_SERVER){
         inputArrPtr = multArrVec;
     }
     else{
@@ -1041,7 +1041,7 @@ void ElemWiseActModelVectorMult(int32_t size, intType* inArr, intType* multArrVe
         dotProdThreads[i].join();
     }
 #else
-    if (party==SERVER){
+    if (SCI_party==SCI_SERVER){
         matmulImpl->funcDotProdOTSender(size,multArrVec,outputArr,iknpOT);
     }
     else{
@@ -1049,7 +1049,7 @@ void ElemWiseActModelVectorMult(int32_t size, intType* inArr, intType* multArrVe
     }
 #endif
 
-    if (party==SERVER){
+    if (SCI_party==SCI_SERVER){
         for(int i=0;i<size;i++){
             outputArr[i] += (inArr[i]*multArrVec[i]);
         }
@@ -1091,7 +1091,7 @@ void ElemWiseActModelVectorMult(int32_t size, intType* inArr, intType* multArrVe
         assert(outputArr[i] < prime_mod);
     }
 #endif
-    if (party == SERVER) {
+    if (SCI_party == SCI_SERVER) {
         funcReconstruct2PCCons(nullptr, inArr, size);
         funcReconstruct2PCCons(nullptr, multArrVec, size);
         funcReconstruct2PCCons(nullptr, outputArr, size);
@@ -1174,7 +1174,7 @@ void ScaleDown(int32_t size, intType* inArr, int32_t sf)
     }
 #endif
 
-    if (party == SERVER) {
+    if (SCI_party == SCI_SERVER) {
         funcReconstruct2PCCons(nullptr, inArr, size);
         funcReconstruct2PCCons(nullptr, outp, size);
     } 
@@ -1251,13 +1251,13 @@ void EndComputation(){
     std::cout<<"------------------------------------------------------\n";
     std::cout<<"Total time taken = "<<execTimeInMilliSec<<" milliseconds.\n";
     std::cout<<"Total data sent = "<<(totalComm/(1.0*(1ULL<<20)))<<" MiB."<<std::endl;
-    if (party==SERVER){
+    if (SCI_party==SCI_SERVER){
         io->recv_data(&totalCommClient, sizeof(uint64_t));
         std::cout<<"Total comm (sent+received) = "<<((totalComm+totalCommClient)/(1.0*(1ULL<<20)))<<" MiB."<<std::endl;
     }
-    else if (party==CLIENT){
+    else if (SCI_party==SCI_CLIENT){
         io->send_data(&totalComm, sizeof(uint64_t));
-        std::cout<<"Total comm (sent+received) = (see SERVER OUTPUT)"<<std::endl;
+        std::cout<<"Total comm (sent+received) = (see SCI_SERVER OUTPUT)"<<std::endl;
     }
     std::cout<<"------------------------------------------------------\n";
 
@@ -1280,7 +1280,7 @@ void EndComputation(){
     std::cout<<"Avgpool data sent = "<<((AvgpoolCommSent)/(1.0*(1ULL<<20)))<<" MiB."<<std::endl;
     std::cout<<"Argmax data sent = "<<((ArgmaxCommSent)/(1.0*(1ULL<<20)))<<" MiB."<<std::endl;
     std::cout<<"------------------------------------------------------\n";
-    if (party==SERVER){
+    if (SCI_party==SCI_SERVER){
         uint64_t ConvCommSentClient = 0;
         uint64_t MatmulCommSentClient = 0;
         uint64_t BatchNormCommSentClient = 0;
@@ -1344,7 +1344,7 @@ void EndComputation(){
         result.close();
 #endif
     }
-    else if (party==CLIENT){
+    else if (SCI_party==SCI_CLIENT){
         io->send_data(&ConvCommSent, sizeof(uint64_t));
         io->send_data(&MatmulCommSent, sizeof(uint64_t));
         io->send_data(&BatchNormCommSent, sizeof(uint64_t));

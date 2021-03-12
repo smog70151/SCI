@@ -72,9 +72,9 @@ public:
     IO* io = nullptr;
     sci::OTPack<IO>* otpack = nullptr;
     sci::PRG128* prg;
-    int party;
+    int SCI_party;
 
-    TripleGenerator(int party, IO* io, sci::OTPack<IO>* otpack) {
+    TripleGenerator(int SCI_party, IO* io, sci::OTPack<IO>* otpack) {
         this->io = io;
         this->otpack = otpack;
         this->prg = new sci::PRG128;
@@ -84,12 +84,12 @@ public:
         delete prg;
     }
 
-    void generate(int party, uint8_t* ai, uint8_t* bi, uint8_t* ci, int num_triples, TripleGenMethod method, bool packed = false, int offset = 1) {
+    void generate(int SCI_party, uint8_t* ai, uint8_t* bi, uint8_t* ci, int num_triples, TripleGenMethod method, bool packed = false, int offset = 1) {
         if (!num_triples) return;
         switch (method) {
             case Ideal: {
                 int num_bytes = ceil((double)num_triples/8);
-                if(party == sci::ALICE) {
+                if(SCI_party == sci::ALICE) {
                     uint8_t* a = new uint8_t[num_bytes];
                     uint8_t* b = new uint8_t[num_bytes];
                     uint8_t* c = new uint8_t[num_bytes];
@@ -184,7 +184,7 @@ public:
                 }
                 prg->random_bool((bool*)a, num_triples);
                 prg->random_bool((bool*)b, num_triples);
-                switch(party) {
+                switch(SCI_party) {
                     case sci::ALICE: {
                         prg->random_bool((bool*)c, num_triples);
                         uint8_t** ot_messages; // (num_triples/2) X 16
@@ -252,7 +252,7 @@ public:
                     memcpy(a+i+offset, a+i, offset);
                 }
                 prg->random_bool((bool*)b, num_triples);
-                switch(party) {
+                switch(SCI_party) {
                     case sci::ALICE: {
                         prg->random_bool((bool*)c, num_triples);
                         uint8_t** ot_messages; // (num_triples/2) X 8
@@ -308,8 +308,8 @@ public:
         }
     }
 
-    void generate(int party, Triple* triples, TripleGenMethod method) {
-        generate(party, triples->ai, triples->bi, triples->ci, triples->num_triples, method, triples->packed, triples->offset);
+    void generate(int SCI_party, Triple* triples, TripleGenMethod method) {
+        generate(SCI_party, triples->ai, triples->bi, triples->ci, triples->num_triples, method, triples->packed, triples->offset);
     }
 };
 #endif //TRIPLE_GENERATOR_H__

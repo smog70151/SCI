@@ -25,18 +25,18 @@ using namespace std;
 using namespace seal;
 using namespace sci;
 
-ElemWiseProdField::ElemWiseProdField(int party, NetIO* io)
+ElemWiseProdField::ElemWiseProdField(int SCI_party, NetIO* io)
 {
-    this->party = party;
+    this->SCI_party = SCI_party;
     this->io = io;
     this->slot_count = POLY_MOD_DEGREE;
-    generate_new_keys(party, io, slot_count, context, encryptor, decryptor,
+    generate_new_keys(SCI_party, io, slot_count, context, encryptor, decryptor,
             evaluator, encoder, gal_keys, zero);
 }
 
 ElemWiseProdField::~ElemWiseProdField()
 {
-    free_keys(party, encryptor, decryptor, evaluator, encoder, gal_keys, zero);
+    free_keys(SCI_party, encryptor, decryptor, evaluator, encoder, gal_keys, zero);
 }
 
 vector<uint64_t> ElemWiseProdField::ideal_functionality(
@@ -61,7 +61,7 @@ void ElemWiseProdField::elemwise_product(
 {
     int num_ct = ceil(float(size)/slot_count);
 
-    if (party == BOB)
+    if (SCI_party == BOB)
     {
         vector<Ciphertext> ct(num_ct);
         for (int i = 0; i < num_ct; i++) {
@@ -90,7 +90,7 @@ void ElemWiseProdField::elemwise_product(
         }
         if(verify_output) verify(inArr, nullptr, outputArr);
     }
-    else // party == ALICE
+    else // SCI_party == ALICE
     {
         vector<Plaintext> multArr_pt(num_ct);
         for (int i = 0; i < num_ct; i++) {
@@ -173,12 +173,12 @@ void ElemWiseProdField::verify(
         vector<uint64_t>* multArr,
         vector<uint64_t> &outArr)
 {
-    if (party == BOB)
+    if (SCI_party == BOB)
     {
         io->send_data(inArr.data(), inArr.size() * sizeof(uint64_t));
         io->send_data(outArr.data(), outArr.size() * sizeof(uint64_t));
     }
-    else // party == ALICE
+    else // SCI_party == ALICE
     {
         vector<uint64_t> inArr_0(inArr.size());
         io->recv_data(inArr_0.data(), inArr.size() * sizeof(uint64_t));

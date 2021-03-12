@@ -317,7 +317,7 @@ Bitlength 41 prime: 2199023190017
 #endif
 
 const int32_t baseForRelu = 4;
-int32_t party = 0;
+int32_t SCI_party = 0;
 extern const int numThreads = 4;
 
 #ifdef LOG_LAYERWISE
@@ -341,11 +341,11 @@ uint64_t ArgmaxCommSent = 0;
 
 #endif
 
-#include "utils/constants.h"
-#include "utils/net_io_channel.h"
-#include "OT/emp-ot.h"
-const int SERVER = sci::ALICE;
-const int CLIENT = sci::BOB;
+#include "sci/utils/constants.h"
+#include "sci/utils/net_io_channel.h"
+#include "sci/OT/emp-ot.h"
+const int SCI_SERVER = sci::ALICE;
+const int SCI_CLIENT = sci::BOB;
 
 // Keep above order of headers same -- constants.h has definitions of ALICE and BOB 
 // 	Other headers are needed first to define io, iknpOT etc. -- so that in rest of the files
@@ -368,19 +368,19 @@ sci::KKOT<sci::NetIO>* kkotInstanceArr[numThreads];
 sci::PRG128* prg128Instance;
 sci::PRG128* prgInstanceArr[numThreads];
 
-#include "linear-primary.h"
+#include "sci/linear-primary.h"
 Matmul<sci::NetIO, intType, sci::IKNP<sci::NetIO>>* matmulInstanceArr[numThreads];
 Matmul<sci::NetIO, intType, sci::IKNP<sci::NetIO>>* matmulImpl;
-#include "NonLinear/relu-interface.h"
+#include "sci/NonLinear/relu-interface.h"
 ReLUProtocol<sci::NetIO, intType>* reluImplArr[numThreads];
 ReLUProtocol<sci::NetIO, intType>* reluImpl;
-#include "NonLinear/maxpool.h"
+#include "sci/NonLinear/maxpool.h"
 MaxPoolProtocol<sci::NetIO, intType>* maxpoolImplArr[numThreads];
 MaxPoolProtocol<sci::NetIO, intType>* maxpoolImpl;
-#include "NonLinear/argmax.h"
-#include "LinearHE/conv-field.h"
-#include "LinearHE/fc-field.h"
-#include "LinearHE/elemwise-prod-field.h"
+#include "sci/NonLinear/argmax.h"
+#include "sci/LinearHE/conv-field.h"
+#include "sci/LinearHE/fc-field.h"
+#include "sci/LinearHE/elemwise-prod-field.h"
 //Add extra headers here
 
 

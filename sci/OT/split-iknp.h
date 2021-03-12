@@ -37,7 +37,7 @@ class SplitIKNP : public OT<SplitIKNP<IO>>
 public:
 	OTNP<IO> * base_ot;
 	PRG128 prg;
-	int party;
+	int SCI_party;
 	const int lambda = 128;
 	int block_size = 1024*16;
 	
@@ -66,16 +66,16 @@ public:
 	uint8_t *r_off;
 	int N = 2;
 	SplitIKNP(
-			int party, IO * io) 
+			int SCI_party, IO * io) 
 	{
-		assert(party == ALICE || party == BOB);
-		this->party = party;
+		assert(SCI_party == ALICE || SCI_party == BOB);
+		this->SCI_party = SCI_party;
 		this->io = io;
 		base_ot = new OTNP<IO>(io);
 		s = new bool[lambda];
 		k0 = new block128[lambda];
 		k1 = new block128[lambda];
-		switch (party) {
+		switch (SCI_party) {
 			case ALICE: {
 				h = new uint8_t*[N];
 				h64 = new uint64_t*[N];
@@ -108,7 +108,7 @@ public:
 		delete[] s;
 		delete[] k0;
 		delete[] k1;
-		switch (party) {
+		switch (SCI_party) {
 			case ALICE: {
 				for(int i = 0; i < N; i++){
 					delete[] h[i];
@@ -138,7 +138,7 @@ public:
 	{
 		this->precomp_batch_size = batch_size;
 		this->counter = batch_size;
-		switch (party) {
+		switch (SCI_party) {
 			case ALICE: {
 				for(int i = 0; i < N; i++){
 					delete[] h[i];
@@ -157,7 +157,7 @@ public:
 			    break;
 			}
 		}
-		switch (party) {
+		switch (SCI_party) {
 			case ALICE:
 				h = new uint8_t*[N];
 				h64 = new uint64_t*[N];
@@ -282,7 +282,7 @@ public:
 
 	void preprocess() 
 	{
-		switch (party) {
+		switch (SCI_party) {
 			case ALICE: {
 				send_pre(counter);
 				got_send_offline(counter);

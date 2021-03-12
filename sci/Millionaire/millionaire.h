@@ -32,13 +32,13 @@ class MillionaireProtocol {
 		IO* io = nullptr;
 		sci::OTPack<IO>* otpack;
 		TripleGenerator<IO>* triple_gen;
-		int party;
+		int SCI_party;
 		int l, r, log_alpha, beta, beta_pow;
 		int num_digits, num_triples_corr, num_triples_std, log_num_digits;
 		int num_triples;
 		uint8_t mask_beta, mask_r;
 
-		MillionaireProtocol(int party,
+		MillionaireProtocol(int SCI_party,
 				int bitlength,
 				int log_radix_base,
 				IO* io,
@@ -46,12 +46,12 @@ class MillionaireProtocol {
 		{
 			assert(log_radix_base <= 8);
 			assert(bitlength <= 64);
-			this->party = party;
+			this->SCI_party = SCI_party;
 			this->l = bitlength;
 			this->beta = log_radix_base;
 			this->io = io;
 			this->otpack = otpack;
-			this->triple_gen = new TripleGenerator<IO>(party, io, otpack);
+			this->triple_gen = new TripleGenerator<IO>(SCI_party, io, otpack);
 			configure();
 		}
 
@@ -96,7 +96,7 @@ class MillionaireProtocol {
 					else
 						digits[i*num_cmps+j] = (uint8_t)(data[j] >> i*beta) & mask_beta;
 
-			if(party == sci::ALICE)
+			if(SCI_party == sci::ALICE)
 			{
 				uint8_t** leaf_ot_messages; // (num_digits * num_cmps) X beta_pow (=2^beta)
 				leaf_ot_messages = new uint8_t*[num_digits*num_cmps];
@@ -164,7 +164,7 @@ class MillionaireProtocol {
 					delete[] leaf_ot_messages[i];
 				delete[] leaf_ot_messages;
 			}
-			else // party = sci::BOB
+			else // SCI_party = sci::BOB
 			{
 				// Perform Leaf OTs
 #ifdef WAN_EXEC
@@ -251,10 +251,10 @@ class MillionaireProtocol {
 			// Generate required Bit-Triples
 #ifdef WAN_EXEC
 			//std::cout<<"Running on WAN_EXEC; Skipping correlated triples"<<std::endl;
-			triple_gen->generate(party, &triples_std, _16KKOT_to_4OT);
+			triple_gen->generate(SCI_party, &triples_std, _16KKOT_to_4OT);
 #else
-			triple_gen->generate(party, &triples_corr, _8KKOT);
-			triple_gen->generate(party, &triples_std, _16KKOT_to_4OT);
+			triple_gen->generate(SCI_party, &triples_corr, _8KKOT);
+			triple_gen->generate(SCI_party, &triples_std, _16KKOT_to_4OT);
 #endif
 			// std::cout << "Bit Triples Generated" << std::endl;
 
@@ -319,7 +319,7 @@ class MillionaireProtocol {
 				int offset_corr = ((num_triples_std + 2*old_counter_corr)*num_cmps)/8;
 				int size_corr = (2*(counter_corr - old_counter_corr)*num_cmps)/8;
 
-				if(party == sci::ALICE)
+				if(SCI_party == sci::ALICE)
 				{
 					io->send_data(ei+offset_std, size_std);
 					io->send_data(ei+offset_corr, size_corr);
@@ -330,7 +330,7 @@ class MillionaireProtocol {
 					io->recv_data(f+offset_std, size_std);
 					io->recv_data(f+offset_corr, size_corr);
 				}
-				else // party = sci::BOB
+				else // SCI_party = sci::BOB
 				{
 					io->recv_data(e+offset_std, size_std);
 					io->recv_data(e+offset_corr, size_corr);
@@ -473,7 +473,7 @@ class MillionaireProtocol {
 			assert(num_ANDs % 8 == 0);
 			for(int i = 0; i < num_ANDs; i+=8) {
 				uint8_t temp_z;
-				if (party == sci::ALICE)
+				if (SCI_party == sci::ALICE)
 					temp_z = e[i/8] & f[i/8];
 				else
 					temp_z = 0;

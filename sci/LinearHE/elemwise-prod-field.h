@@ -25,7 +25,7 @@ SOFTWARE.
 #include "sci/LinearHE/utils-HE.h"
 
 class ElemWiseProdField { public:
-    int party;
+    int SCI_party;
     sci::NetIO* io;
     std::shared_ptr<seal::SEALContext> context;
     seal::Encryptor* encryptor;
@@ -36,7 +36,7 @@ class ElemWiseProdField { public:
     seal::Ciphertext* zero;
     int slot_count;
 
-    ElemWiseProdField(int party, sci::NetIO* io);
+    ElemWiseProdField(int SCI_party, sci::NetIO* io);
 
     ~ElemWiseProdField();
 

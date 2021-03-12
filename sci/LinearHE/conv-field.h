@@ -147,7 +147,7 @@ uint64_t** HE_decrypt(
 
 class ConvField { 
 public:
-    int party;
+    int SCI_party;
     sci::NetIO* io;
     std::shared_ptr<seal::SEALContext> context[2];
     seal::Encryptor* encryptor[2];
@@ -159,7 +159,7 @@ public:
     int slot_count;
     ConvMetadata data;
 
-    ConvField(int party, sci::NetIO* io);
+    ConvField(int SCI_party, sci::NetIO* io);
 
     ~ConvField();
 

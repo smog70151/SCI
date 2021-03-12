@@ -29,7 +29,7 @@ SOFTWARE.
 #define PRINT_NOISE_BUDGET(decryptor,ct,print_msg) if (verbose) std::cout << "[Server] Noise Budget " << print_msg << ": " << YELLOW << decryptor->invariant_noise_budget(ct) << " bits" << RESET << std::endl
 
 void generate_new_keys(
-        int party,
+        int SCI_party,
         sci::NetIO* io,
         int slot_count,
         std::shared_ptr<seal::SEALContext> &context_,
@@ -42,7 +42,7 @@ void generate_new_keys(
         bool verbose = false);
 
 void free_keys(
-        int party,
+        int SCI_party,
         seal::Encryptor* &encryptor_,
         seal::Decryptor* &decryptor_,
         seal::Evaluator* &evaluator_,

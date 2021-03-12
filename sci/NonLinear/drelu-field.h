@@ -36,7 +36,7 @@ class DReLUFieldProtocol
 		sci::OTPack<IO>* otpack;
 		TripleGenerator<IO>* triple_gen;
 		MillionaireProtocol<IO>* millionaire;
-		int party;
+		int SCI_party;
 		int l, r, log_alpha, beta, beta_pow;
 		int num_digits, num_triples_corr, num_triples_std, log_num_digits;
 		int num_triples;
@@ -44,7 +44,7 @@ class DReLUFieldProtocol
 		uint64_t p, p_2;
 
 		DReLUFieldProtocol(
-				int party,
+				int SCI_party,
 				int bitlength,
 				int log_radix_base,
 				uint64_t prime_mod,
@@ -53,13 +53,13 @@ class DReLUFieldProtocol
 		{
 			assert(log_radix_base <= 8);
 			assert(bitlength <= 64);
-			this->party = party;
+			this->SCI_party = SCI_party;
 			this->l = bitlength;
 			this->beta = log_radix_base;
 			this->io = io;
 			this->p = prime_mod;
 			this->otpack = otpack;
-			this->millionaire = new MillionaireProtocol<IO>(party, bitlength, log_radix_base, io, otpack);
+			this->millionaire = new MillionaireProtocol<IO>(SCI_party, bitlength, log_radix_base, io, otpack);
 			this->triple_gen = millionaire->triple_gen;
 			configure();
 		}
@@ -108,7 +108,7 @@ class DReLUFieldProtocol
 
 			// Extract radix-digits from data
 			assert((beta <= 8) && "Base beta > 8 is not implemented");
-			if(party == sci::ALICE)
+			if(SCI_party == sci::ALICE)
 			{
 				for(int j = 0; j < num_relu; j++){
 					uint64_t input_wrap_cmp = (p - 1 - share[j]) + p_2;
@@ -130,7 +130,7 @@ class DReLUFieldProtocol
 					}
 				}
 			}
-			else // party = sci::BOB
+			else // SCI_party = sci::BOB
 			{
 				for(int j = 0; j < num_relu; j++){
 					uint64_t input_cmp = p_2 + share[j];
@@ -145,7 +145,7 @@ class DReLUFieldProtocol
 				}
 			}
 
-			if(party == sci::ALICE)
+			if(SCI_party == sci::ALICE)
 			{
 				uint8_t** leaf_ot_messages; // (num_digits * num_relu) X beta_pow (=2^beta)
 				// Do the two relu_comparisons together in 1 leaf OT.
@@ -214,7 +214,7 @@ class DReLUFieldProtocol
 				delete[] leaf_ot_messages;
 				// Alice's shares are: cmp1, cmp2 and cmp3 are at leaf_res_cmp[0+3*j], leaf_res_cmp[1+3*j] and leaf_res_cmp[2+3*j]
 			}
-			else // party = sci::BOB
+			else // SCI_party = sci::BOB
 			{
 				// Perform Leaf OTs
 				uint8_t* leaf_ot_recvd = new uint8_t[num_digits*num_relu];
@@ -269,7 +269,7 @@ class DReLUFieldProtocol
 
 			assert(num_relu % 8 == 0 && "Number of ReLUs should be a multiple of 8");
 
-			if(party == sci::ALICE)
+			if(SCI_party == sci::ALICE)
 			{
 				uint8_t** mux_ot_messages = new uint8_t*[num_relu];
 				for(int j = 0; j < num_relu; j++) {

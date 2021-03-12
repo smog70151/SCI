@@ -26,12 +26,12 @@ SOFTWARE.
 #include <cmath>
 
 void funcLocalTruncate(int s, intType* arr, int consSF){
-	if (party==SERVER){
+	if (SCI_party==SCI_SERVER){
 		for(int i=0;i<s;i++){
 			arr[i] = static_cast<intType>((static_cast<signedIntType>(arr[i]))>>consSF);
 		}
 	}
-	else if (party==CLIENT){
+	else if (SCI_party==SCI_CLIENT){
 		for(int i=0;i<s;i++){
 			arr[i] = -static_cast<intType>((static_cast<signedIntType>(-arr[i]))>>consSF);
 		}
@@ -53,9 +53,9 @@ intType funcSSCons(int32_t x){
 	/*
 		Secret share public value x between the two parties. 
 		Corresponding ezpc statement would be int32_al x = 0;
-		Set one party share as x and other party's share as 0.
+		Set one SCI_party share as x and other SCI_party's share as 0.
 	*/
-	if (party==SERVER){
+	if (SCI_party==SCI_SERVER){
 		return x;
 	}
 	else{
@@ -67,9 +67,9 @@ intType funcSSCons(int64_t x){
 	/*
 		Secret share public value x between the two parties. 
 		Corresponding ezpc statement would be int32_al x = 0;
-		Set one party share as x and other party's share as 0.
+		Set one SCI_party share as x and other SCI_party's share as 0.
 	*/
-	if (party==SERVER){
+	if (SCI_party==SCI_SERVER){
 		return x;
 	}
 	else{
@@ -84,10 +84,10 @@ inline intType getFieldMsb(intType x){
 void funcReconstruct2PCCons(signedIntType* y, intType* x, int len){
 	intType temp = 0;
 	signedIntType ans = 0;
-	if (party==SERVER){
+	if (SCI_party==SCI_SERVER){
 		io->send_data(x, len*sizeof(intType));
 	}
-	else if (party==CLIENT){
+	else if (SCI_party==SCI_CLIENT){
 		io->recv_data(y, len*sizeof(intType));
         for (int i = 0; i < len; i++) {
             temp = y[i] + x[i];
@@ -110,10 +110,10 @@ signedIntType funcReconstruct2PCCons(intType x, int revealParty){
 	intType temp = 0;
 	signedIntType ans = 0;
 	static const uint64_t moduloMask = sci::all1Mask(bitlength);
-	if (party==SERVER){
+	if (SCI_party==SCI_SERVER){
 		io->send_data(&x, sizeof(intType));
 	}
-	else if (party==CLIENT){
+	else if (SCI_party==SCI_CLIENT){
 		io->recv_data(&temp, sizeof(intType));
 		temp = temp + x;
 		if (!isNativeRing){
@@ -135,7 +135,7 @@ signedIntType div_floor(signedIntType a, signedIntType b){
 }
 
 void funcTruncationIdeal(int size, intType* arr, int consSF){
-	if (party==SERVER){
+	if (SCI_party==SCI_SERVER){
 		io->send_data(arr, sizeof(intType)*size);
 		for(int i=0;i<size;i++){
 			arr[i] = 0;
@@ -164,7 +164,7 @@ void funcTruncationIdeal(int size, intType* arr, int consSF){
 }
 
 void printAllReconstructedValuesSigned(int size, intType* arr){
-	if (party==SERVER){
+	if (SCI_party==SCI_SERVER){
 		io->send_data(arr, sizeof(intType)*size);
 	}
 	else{
@@ -186,7 +186,7 @@ void printAllReconstructedValuesSigned(int size, intType* arr){
 }
 
 intType funcSigendDivIdeal(intType x, uint32_t y){
-	if (party==SERVER){
+	if (SCI_party==SCI_SERVER){
 		io->send_data(&x,sizeof(intType));
 		return 0;
 	}
@@ -238,7 +238,7 @@ void funcMatmulThread(int tid, int N, int s1, int s2, int s3, const intType* A, 
 	if (partyWithAInAB_mul==sci::BOB) useBobAsSender = !useBobAsSender;
 	if (useBobAsSender){
 		// Odd tid, use Bob (holding B) as sender and Alice (holding A) as receiver
-		if (party==partyWithAInAB_mul){
+		if (SCI_party==partyWithAInAB_mul){
 			matmulInstanceArr[tid]->funcOTReceiverInputA(s1,(s2EndIdx - s2StartIdx),s3,APtr,C,otInstanceArr[tid]);
 		}
 		else{
@@ -247,7 +247,7 @@ void funcMatmulThread(int tid, int N, int s1, int s2, int s3, const intType* A, 
 	}
 	else{
 		// Even tid, use Bob (holding B) as receiver and Alice (holding A) as sender
-		if (party==partyWithAInAB_mul){
+		if (SCI_party==partyWithAInAB_mul){
 			matmulInstanceArr[tid]->funcOTSenderInputA(s1,(s2EndIdx - s2StartIdx),s3,APtr,C,otInstanceArr[tid]);
 		}
 		else{
@@ -262,7 +262,7 @@ void funcDotProdThread(int tid, int N, int size, const intType* inArr, intType* 
 	assert(tid>=0);
 	if (tid & 1){
 		//tid is odd -- acc to convention in the rest of the code, Alice is recv and Bob is sender
-		if (::party==sci::ALICE){
+		if (::SCI_party==sci::ALICE){
 			matmulInstanceArr[tid]->funcDotProdOTReceiver(size, inArr, outArr, otInstanceArr[tid]);
 		}
 		else{
@@ -271,7 +271,7 @@ void funcDotProdThread(int tid, int N, int size, const intType* inArr, intType* 
 	}
 	else{
 		//tid is even -- acc to convention in the rest of the code, Alice is sender and Bob is recv
-		if (::party==sci::ALICE){
+		if (::SCI_party==sci::ALICE){
 			matmulInstanceArr[tid]->funcDotProdOTSender(size, inArr, outArr, otInstanceArr[tid]);
 		}
 		else{
@@ -442,7 +442,7 @@ void funcTruncateTwoPowerRingWrapper(int size, const intType* inp, intType* outp
         else {
             curSize = chunk_size;
         }
-        int curParty = party;
+        int curParty = SCI_party;
         if (i & 1) curParty = 3 - curParty;
         uint8_t* msbShareArg = msbShare;
         if (msbShare!=nullptr) msbShareArg = msbShareArg+offset;
@@ -456,7 +456,7 @@ void funcTruncateTwoPowerRingWrapper(int size, const intType* inp, intType* outp
 		truncThreads[i].join();
     }
 #else
-	funcTruncateTwoPowerRing(party, io, otpack, iknpOT, kkot, reluImpl, prg128Instance, //Global variables
+	funcTruncateTwoPowerRing(SCI_party, io, otpack, iknpOT, kkot, reluImpl, prg128Instance, //Global variables
 							size, inp, outp, consSF, msbShare, doCarryBitCalculation
 							);
 #endif
@@ -722,7 +722,7 @@ void funcAvgPoolTwoPowerRingWrapper(int size, const intType* inp, intType* outp,
         else {
             curSize = chunk_size;
         }
-        int curParty = party;
+        int curParty = SCI_party;
         if (i & 1) curParty = 3 - curParty;
         truncThreads[i] = std::thread(funcAvgPoolTwoPowerRing, 
         							curParty, ioArr[i], otpackArr[i], otInstanceArr[i], kkotInstanceArr[i], 
@@ -734,7 +734,7 @@ void funcAvgPoolTwoPowerRingWrapper(int size, const intType* inp, intType* outp,
 		truncThreads[i].join();
     }
 #else
-	funcAvgPoolTwoPowerRing(party, io, otpack, iknpOT, kkot, reluImpl, prg128Instance, 
+	funcAvgPoolTwoPowerRing(SCI_party, io, otpack, iknpOT, kkot, reluImpl, prg128Instance, 
 						 size, inp, outp, divisor);
 #endif
 }
@@ -1001,7 +1001,7 @@ void funcFieldDivWrapper(int size, const intType* inp, intType* outp, intType di
         else {
             curSize = chunk_size;
         }
-        int curParty = party;
+        int curParty = SCI_party;
         if (i & 1) curParty = 3 - curParty;
         uint8_t* msbShareArg = msbShare;
         if (msbShare!=nullptr) msbShareArg = msbShareArg+offset;
@@ -1015,7 +1015,7 @@ void funcFieldDivWrapper(int size, const intType* inp, intType* outp, intType di
 		truncThreads[i].join();
     }
 #else
-	funcFieldDiv<intType>(party, io, otpack, iknpOT, kkot, reluImpl, prg128Instance, 
+	funcFieldDiv<intType>(SCI_party, io, otpack, iknpOT, kkot, reluImpl, prg128Instance, 
 						 size, inp, outp, divisor, msbShare);
 #endif
 }

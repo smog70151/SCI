@@ -35,7 +35,7 @@ public:
 	IO* io = nullptr;
 	sci::OT<otType>* otImpl = nullptr;
 	sci::OT<otType>* otImplRoleReversed = nullptr;
-	int party;
+	int SCI_party;
 	int bitlength;
 	const int batchSizeOTs = 1ULL<<18; //This is the default size of the batch of OTs that will be done in one go for matmul
 								 	   // This will be scaled appropriately to manage memory if the matmul dimensions are too large.
@@ -43,9 +43,9 @@ public:
 	const uint64_t MaxMemToUseInBytes = 2.5*(1<<30); //2.5 GiB
 	intType moduloMask;
 
-	Matmul(int party, int bitlength, IO* io, sci::OT<otType>* otImpl, sci::OT<otType>* otImplRoleReversed){
-		this->party = party;
-		assert(((party==1)||(party==2)) && "PartyNum should be 1 or 2.");
+	Matmul(int SCI_party, int bitlength, IO* io, sci::OT<otType>* otImpl, sci::OT<otType>* otImplRoleReversed){
+		this->SCI_party = SCI_party;
+		assert(((SCI_party==1)||(SCI_party==2)) && "PartyNum should be 1 or 2.");
 		this->bitlength = bitlength;
 		this->io = io;
 		assert(io!=nullptr && "IO can't be nullptr.");
@@ -103,7 +103,7 @@ public:
 	}
 
 	void verifyMatmulShares(int s1, int s2, int s3, const intType* A_share, const intType* B_share, const intType* C_share){
-		if (party==sci::ALICE){
+		if (SCI_party==sci::ALICE){
 			intType* A_temp_share = new intType[s1*s2];
 			intType* B_temp_share = new intType[s2*s3];
 			intType* C_temp_share = new intType[s1*s3];
@@ -125,7 +125,7 @@ public:
 			delete[] C_temp_share;
 			delete[] C_clear;
 		}
-		else if (party==sci::BOB){
+		else if (SCI_party==sci::BOB){
 			io->send_data(A_share, sizeof(intType)*s1*s2);
 			io->send_data(B_share, sizeof(intType)*s2*s3);
 			io->send_data(C_share, sizeof(intType)*s1*s3);
@@ -136,14 +136,14 @@ public:
 	}
 
 	void fillInSimpleValues(int s1, int s2, intType* arr){
-		if (party==sci::ALICE){
+		if (SCI_party==sci::ALICE){
 			for(int i=0;i<s1;i++){
 				for(int j=0;j<s2;j++){
 					Arr2DIdxRowM(arr,s1,s2,i,j) = i+j+1;
 				}
 			}
 		}
-		else if (party==sci::BOB){
+		else if (SCI_party==sci::BOB){
 			for(int i=0;i<s1;i++){
 				for(int j=0;j<s2;j++){
 					Arr2DIdxRowM(arr,s1,s2,i,j) = 0;
@@ -603,12 +603,12 @@ public:
 		prg.random_data(A_share, s1*s2*sizeof(intType));
 		prg.random_data(B_share, s2*s3*sizeof(intType));
 		intType* temp = new intType[s1*s3];
-		if (party==sci::ALICE){
+		if (SCI_party==sci::ALICE){
 			// The OTs can be done in parallel
 			funcOTSenderInputA(s1,s2,s3,A_share,C_share,otImpl);
 			funcOTReceiverInputB(s1,s2,s3,B_share,temp,otImplRoleReversed);
 		}
-		else if (party==sci::BOB){
+		else if (SCI_party==sci::BOB){
 			funcOTReceiverInputB(s1,s2,s3,B_share,C_share,otImpl);
 			funcOTSenderInputA(s1,s2,s3,A_share,temp,otImplRoleReversed);
 		}
@@ -641,13 +641,13 @@ public:
 		sci::elemWiseSub<intType>(s1*s2,X_share,A_share,E_share);
 		sci::elemWiseSub<intType>(s2*s3,Y_share,B_share,F_share);
 
-		if (party==sci::ALICE){
+		if (SCI_party==sci::ALICE){
 			io->send_data(E_share, sizeof(intType)*s1*s2);
 			io->send_data(F_share, sizeof(intType)*s2*s3);
 			io->recv_data(E_temp_share, sizeof(intType)*s1*s2);
 			io->recv_data(F_temp_share, sizeof(intType)*s2*s3);
 		}
-		else if (party==sci::BOB){
+		else if (SCI_party==sci::BOB){
 			io->recv_data(E_temp_share, sizeof(intType)*s1*s2);
 			io->recv_data(F_temp_share, sizeof(intType)*s2*s3);
 			io->send_data(E_share, sizeof(intType)*s1*s2);
@@ -663,10 +663,10 @@ public:
 		
 		// Now E_share and F_share hold the clear values of E & F
 		ideal_func(s1,s2,s3,E_share,Y_share,Z_temp_share);
-		if (party==sci::ALICE){
+		if (SCI_party==sci::ALICE){
 			ideal_func(s1,s2,s3,X_share,F_share,Z_share);
 		}
-		else if (party==sci::BOB){
+		else if (SCI_party==sci::BOB){
 			sci::elemWiseSub<intType>(s1*s2,X_share,E_share,E_temp_share);
 			ideal_func(s1,s2,s3,E_temp_share,F_share,Z_share);
 		}

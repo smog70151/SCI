@@ -50,7 +50,7 @@ inline void error(const char * s, int line = 0, const char * file = nullptr);
 template<class... Ts>
 void run_function(void *function, const Ts&... args);
 
-inline void parse_party_and_port(char ** arg, int argc, int * party, int * port);
+inline void parse_party_and_port(char ** arg, int argc, int * SCI_party, int * port);
 
 std::string Party(int p);
 
@@ -82,8 +82,8 @@ inline int64_t neg_mod(int64_t val, int64_t mod);
 inline int8_t neg_mod(int8_t val, int8_t mod);
 
 //deprecate soon
-inline void parse_party_and_port(char ** arg, int * party, int * port) {
-	parse_party_and_port(arg, 2, party, port);
+inline void parse_party_and_port(char ** arg, int * SCI_party, int * port) {
+	parse_party_and_port(arg, 2, SCI_party, port);
 }
 
 #include "../utils/utils.hpp"

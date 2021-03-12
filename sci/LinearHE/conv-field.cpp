@@ -480,22 +480,22 @@ uint64_t** HE_decrypt(
     return final_result;
 }
 
-ConvField::ConvField(int party, NetIO* io)
+ConvField::ConvField(int SCI_party, NetIO* io)
 {
-    this->party = party;
+    this->SCI_party = SCI_party;
     this->io = io;
     this->slot_count = POLY_MOD_DEGREE_LARGE;
-    generate_new_keys(party, io, slot_count, context[1], encryptor[1], decryptor[1],
+    generate_new_keys(SCI_party, io, slot_count, context[1], encryptor[1], decryptor[1],
             evaluator[1], encoder[1], gal_keys[1], zero[1]);
     this->slot_count = POLY_MOD_DEGREE;
-    generate_new_keys(party, io, slot_count, context[0], encryptor[0], decryptor[0],
+    generate_new_keys(SCI_party, io, slot_count, context[0], encryptor[0], decryptor[0],
             evaluator[0], encoder[0], gal_keys[0], zero[0]);
 }
 
 ConvField::~ConvField()
 {
     for(int i = 0; i < 2; i++) {
-        free_keys(party, encryptor[i], decryptor[i], evaluator[i],
+        free_keys(SCI_party, encryptor[i], decryptor[i], evaluator[i],
                 encoder[i], gal_keys[i], zero[i]);
     }
 }
@@ -619,11 +619,11 @@ void ConvField::non_strided_conv(
         gal_keys_ = this->gal_keys[1];
         zero_ = this->zero[1];
     } else {
-        generate_new_keys(party, io, slot_count, context_, encryptor_, decryptor_,
+        generate_new_keys(SCI_party, io, slot_count, context_, encryptor_, decryptor_,
                 evaluator_, encoder_, gal_keys_, zero_, verbose);
     }
 
-    if (party == BOB)
+    if (SCI_party == BOB)
     {
         auto pt = preprocess_image_OP(*image, data);
         if (verbose) cout << "[Client] Image preprocessed" << endl;
@@ -645,7 +645,7 @@ void ConvField::non_strided_conv(
             }
         }
     }
-    else // party == ALICE
+    else // SCI_party == ALICE
     {
         PRG128 prg;
         uint64_t** secret_share = new uint64_t*[CO];
@@ -726,7 +726,7 @@ void ConvField::non_strided_conv(
         delete[] secret_share;
     }
     if (slot_count > POLY_MOD_DEGREE && slot_count < POLY_MOD_DEGREE_LARGE) {
-        free_keys(party, encryptor_, decryptor_, evaluator_,
+        free_keys(SCI_party, encryptor_, decryptor_, evaluator_,
                 encoder_, gal_keys_, zero_);
     }
 }
@@ -780,7 +780,7 @@ void ConvField::convolution(
         }
         image[chan] = tmp_chan;
     }
-    if (party == BOB)
+    if (SCI_party == BOB)
     {
         for (int s_row = 0; s_row < strideH; s_row++) {
             for (int s_col = 0; s_col < strideW; s_col++) {
@@ -820,7 +820,7 @@ void ConvField::convolution(
         }
         if (verify_output) verify(H, W, CI, CO, image, nullptr, outArr);
     }
-    else // party == ALICE
+    else // SCI_party == ALICE
     {
         filters.resize(CO);
         for (int out_c = 0; out_c < CO; out_c++) {
@@ -904,7 +904,7 @@ void ConvField::verify(
 {
     int newH = outArr[0].size();
     int newW = outArr[0][0].size();
-    if (party == BOB)
+    if (SCI_party == BOB)
     {
         for(int i = 0; i < CI; i++) {
             io->send_data(image[i].data(), H*W*sizeof(uint64_t));
@@ -915,7 +915,7 @@ void ConvField::verify(
             }
         }
     }
-    else // party == ALICE
+    else // SCI_party == ALICE
     {
         Image image_0(CI);// = new Channel[CI];
         for(int i = 0; i < CI; i++) {

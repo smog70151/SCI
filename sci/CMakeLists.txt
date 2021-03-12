@@ -23,7 +23,7 @@ add_library(sci
     ${OT_H}
     ${utils_H}
     ${ArgMapping_H}
-    )
+)
 
 find_package(OpenMP REQUIRED)
 find_package(SEAL 3.3.2 EXACT REQUIRED PATHS "${PROJECT_SOURCE_DIR}/build/")    

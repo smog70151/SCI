@@ -28,7 +28,7 @@ using namespace seal;
 using namespace seal::util;
 
 void generate_new_keys(
-        int party,
+        int SCI_party,
         NetIO* io,
         int slot_count,
         shared_ptr<SEALContext> &context_,
@@ -48,7 +48,7 @@ void generate_new_keys(
     context_ = SEALContext::Create(parms, true, sec_level_type::none);
     encoder_ = new BatchEncoder(context_);
     evaluator_ = new Evaluator(context_);
-    if (party == BOB)
+    if (SCI_party == BOB)
     {
         KeyGenerator keygen(context_);
         auto pub_key = keygen.public_key();
@@ -77,7 +77,7 @@ void generate_new_keys(
         encryptor_ = new Encryptor(context_, pub_key);
         decryptor_ = new Decryptor(context_, sec_key);
     }
-    else // party == ALICE
+    else // SCI_party == ALICE
     {
         uint64_t pk_size;
         uint64_t gk_size;
@@ -117,7 +117,7 @@ void generate_new_keys(
 }
 
 void free_keys(
-        int party,
+        int SCI_party,
         Encryptor* &encryptor_,
         Decryptor* &decryptor_,
         Evaluator* &evaluator_,
@@ -128,11 +128,11 @@ void free_keys(
     delete encoder_;
     delete evaluator_;
     delete encryptor_;
-    if (party == BOB)
+    if (SCI_party == BOB)
     {
         delete decryptor_;
     }
-    else // party ==ALICE
+    else // SCI_party ==ALICE
     {
 #ifdef HE_DEBUG
         delete decryptor_;

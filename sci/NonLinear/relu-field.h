@@ -36,7 +36,7 @@ public:
 	sci::OTPack<IO>* otpack = nullptr;
 	TripleGenerator<IO>* triple_gen = nullptr;
 	DReLUFieldProtocol<IO>* relu_triple_compare_oracle = nullptr;
-	int party;
+	int SCI_party;
 	int algeb_str;
 	int l, b;
 	int num_cmps;
@@ -50,7 +50,7 @@ public:
 	
 	//Constructor
 	ReLUFieldProtocol(
-			int party, 
+			int SCI_party, 
 			int algeb_str, 
 			IO* io, 
 			int l, 
@@ -58,7 +58,7 @@ public:
 			uint64_t mod,
       sci::OTPack<IO>* otpack)
 	{
-		this->party = party;
+		this->SCI_party = SCI_party;
 		this->algeb_str = algeb_str;
 		this->io = io;
 		this->l = l;
@@ -67,8 +67,8 @@ public:
 		this->p_bitlen = l;
 		this->p_bitlen_triple_comparison = l+1;
 		this->otpack = otpack;
-		this->triple_gen = new TripleGenerator<IO>(party, io, otpack);
-		this->relu_triple_compare_oracle = new DReLUFieldProtocol<IO>(party, l+1, b, mod, io, otpack);
+		this->triple_gen = new TripleGenerator<IO>(SCI_party, io, otpack);
+		this->relu_triple_compare_oracle = new DReLUFieldProtocol<IO>(SCI_party, l+1, b, mod, io, otpack);
 		configure();
 	}
 
@@ -187,7 +187,7 @@ public:
 			additive_masks[i] %= this->p;
 		}
 		
-		switch (this->party) {
+		switch (this->SCI_party) {
 			case sci::ALICE: {
 				for(int i=0; i<num_relu; i++){
 					set_relu_end_ot_messages(ot_messages[i], share+i, drelu_ans+i, ((type*)additive_masks)+i);
