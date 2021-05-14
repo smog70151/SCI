@@ -67,7 +67,7 @@ public:
 
 	void recv_impl(block256* data, const bool* b, int length) {
 		cnt+=length;
-		block256 data1[length];
+		alignas(32) block256 data1[length];
 		io->recv_block(data, length);
 		io->recv_block(data1, length);
 		for(int i = 0; i < length; ++i)

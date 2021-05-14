@@ -1,7 +1,7 @@
 /*
-Authors: Deevashwer Rathee
+Authors: Mayank Rathee
 Copyright:
-Copyright (c) 2020 Microsoft Research
+Copyright (c) 2021 Microsoft Research
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
 in the Software without restriction, including without limitation the rights
@@ -19,24 +19,34 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#ifndef DEFINES_HE_H__
-#define DEFINES_HE_H__
+#ifndef ZERO_EXT_H__
+#define ZERO_EXT_H__
 
-#include <cstdint>
-#include <cmath>
-// #define HE_DEBUG
+#include "sci/BuildingBlocks/aux-protocols.h"
+#include "sci/Millionaire/millionaire.h"
 
-extern uint64_t prime_mod;
-extern int32_t bitlength;
-extern int32_t SCI_numthreads;
+class XTProtocol {
+public:
+  sci::NetIO *io = nullptr;
+  sci::OTPack<sci::NetIO> *otpack;
+  TripleGenerator<sci::NetIO> *triple_gen = nullptr;
+  MillionaireProtocol<sci::NetIO> *millionaire = nullptr;
+  AuxProtocols *aux = nullptr;
+  bool del_aux = false;
+  int SCI_party;
 
-const uint64_t POLY_MOD_DEGREE = 8192;
-const uint64_t POLY_MOD_DEGREE_LARGE = 32768;
-const int32_t SMUDGING_BITLEN = 108 - bitlength;
+  // Constructor
+  XTProtocol(int SCI_party, sci::NetIO *io, sci::OTPack<sci::NetIO> *otpack,
+             AuxProtocols *auxp = nullptr);
 
-/* Helper function for rounding to the next power of 2
- * Credit:
- * https://stackoverflow.com/questions/466204/rounding-up-to-next-power-of-2 */
-inline int next_pow2(int val) { return pow(2, ceil(log(val) / log(2))); }
+  // Destructor
+  ~XTProtocol();
 
-#endif // DEFINES_HE_H__
+  void z_extend(int32_t dim, uint64_t *inA, uint64_t *outB, int32_t bwA,
+                int32_t bwB, uint8_t *msbA = nullptr);
+
+  void s_extend(int32_t dim, uint64_t *inA, uint64_t *outB, int32_t bwA,
+                int32_t bwB, uint8_t *msbA = nullptr);
+};
+
+#endif // ZERO_EXT_H__

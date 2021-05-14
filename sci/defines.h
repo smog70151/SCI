@@ -1,7 +1,7 @@
 /*
 Authors: Deevashwer Rathee
 Copyright:
-Copyright (c) 2020 Microsoft Research
+Copyright (c) 2021 Microsoft Research
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
 in the Software without restriction, including without limitation the rights
@@ -19,24 +19,36 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#ifndef DEFINES_HE_H__
-#define DEFINES_HE_H__
+#ifndef DEFINES_H___
+#define DEFINES_H___
 
-#include <cstdint>
-#include <cmath>
-// #define HE_DEBUG
+#define LOG_LAYERWISE
+#define VERIFY_LAYERWISE
+#define USE_EIGEN
+#define WRITE_LOG
+// #define APPROXIMATE_SIGMOID
+// #define APPROXIMATE_TANH
+#define THREADING_MIN_CHUNK_SIZE 128
 
-extern uint64_t prime_mod;
-extern int32_t bitlength;
-extern int32_t SCI_numthreads;
+#define DIV_RESCALING
+#ifndef DIV_RESCALING
+#define TRUNCATION_RESCALING
+#endif
 
-const uint64_t POLY_MOD_DEGREE = 8192;
-const uint64_t POLY_MOD_DEGREE_LARGE = 32768;
-const int32_t SMUDGING_BITLEN = 108 - bitlength;
+#include <fstream>
+#include <stdint.h>
+#include <string>
 
-/* Helper function for rounding to the next power of 2
- * Credit:
- * https://stackoverflow.com/questions/466204/rounding-up-to-next-power-of-2 */
-inline int next_pow2(int val) { return pow(2, ceil(log(val) / log(2))); }
+#define RESET "\033[0m"
+#define RED "\033[31m"   /* Red */
+#define GREEN "\033[32m" /* Green */
 
-#endif // DEFINES_HE_H__
+const int SCI_SERVER = 1;
+const int SCI_CLIENT = 2;
+
+extern int SCI_party;
+extern std::string address;
+extern int port;
+extern int SCI_numthreads;
+
+#endif

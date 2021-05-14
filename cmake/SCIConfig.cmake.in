@@ -1,15 +1,30 @@
+include(CMakeFindDependencyMacro)
+
+@PACKAGE_INIT@
+set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR})
+include("${CMAKE_CURRENT_LIST_DIR}/source_of_randomness.cmake")
+
 get_filename_component(SCI_CMAKE_DIR "${CMAKE_CURRENT_LIST_FILE}" PATH)
 
 list(APPEND CMAKE_MODULE_PATH "${SCI_CMAKE_DIR}")
 
-include(CMakeFindDependencyMacro)
+
+find_dependency(OpenSSL)
+find_dependency(GMP)
+find_dependency(GMPXX)
+find_dependency(Threads)
 
 find_dependency(eigen)
 find_dependency(SEAL)
-find_dependency(GMP)
-find_dependency(GMPXX)
-find_dependency(OpenSSL)
 
 if(NOT TARGET ENCRYPTO_utils::encrypto_utils)
     include("${ENCRYPTO_utils_CMAKE_DIR}/ENCRYPTO_utilsTargets.cmake")
 endif()
+
+# To confirm - need it (?)
+# Add the targets file
+include("${CMAKE_CURRENT_LIST_DIR}/SCITargets.cmake")
+
+if(USE_RANDOM_DEVICE)
+    target_compile_definitions(SCI-utils INTERFACE EMP_USE_RANDOM_DEVICE=1)
+endif(USE_RANDOM_DEVICE)

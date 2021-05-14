@@ -13,6 +13,14 @@ file(GLOB NonLinear_H "NonLinear/*.h")
 file(GLOB OT_H "OT/*.h")
 file(GLOB utils_H "utils/*.h")
 file(GLOB ArgMapping_H "utils/ArgMapping/*.h")
+# SIRNN
+file(GLOB Math_H "Math/*.h")
+file(GLOB Math_CPP "Math/*.cpp")
+file(GLOB LinearOT_H "LinearOT/*.h")
+file(GLOB LinearOT_CPP "LinearOT/*.cpp")
+file(GLOB BuildingBlocks_H "BuildingBlocks/*.h")
+file(GLOB BuildingBlocks_CPP "BuildingBlocks/*.cpp")
+
 
 # ADD FILES TO SCI LIBRARY
 add_library(sci
@@ -23,9 +31,16 @@ add_library(sci
     ${OT_H}
     ${utils_H}
     ${ArgMapping_H}
+    ${Math_H}
+    ${Math_CPP}
+    ${LinearOT_H}
+    ${LinearOT_CPP}
+    ${BuildingBlocks_H}
+    ${BuildingBlocks_CPP}
 )
 
 find_package(OpenMP REQUIRED)
+find_package(Threads REQUIRED)
 find_package(SEAL 3.3.2 EXACT REQUIRED PATHS "${PROJECT_SOURCE_DIR}/build/")    
 find_package(Eigen3 3.3 REQUIRED NO_MODULE PATHS "${PROJECT_SOURCE_DIR}/build/")
 
@@ -39,6 +54,7 @@ target_link_libraries(sci
     PUBLIC SEAL::seal
     PUBLIC OpenMP::OpenMP_CXX
     PUBLIC Eigen3::Eigen
+    PUBLIC Threads::Threads
 )
 
 target_link_libraries(sci

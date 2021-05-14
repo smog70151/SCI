@@ -423,3 +423,17 @@ static void writeToPackedArr(uint8_t* arr, int arrLen, uint64_t bitIdx, uint64_t
     uint64_t valIter = (val >> freeBitsInFirstByte); //Since val is unsigned, this is unsigned right shift
     (*((uint64_t*)(arr+firstByteIdx+1))) = valIter;
 }
+
+inline int64_t unsigned_val(uint64_t x, int bw_x)
+{
+    uint64_t mask_x = (bw_x == 64 ? -1 : ((1ULL << bw_x) - 1));
+    return x & mask_x;
+}
+
+inline int64_t signed_val(uint64_t x, int bw_x)
+{
+    uint64_t pow_x = (bw_x == 64 ? 0ULL : (1ULL << bw_x));
+    uint64_t mask_x = pow_x - 1;
+    x = x & mask_x;
+    return int64_t(x - ((x >= (pow_x / 2)) * pow_x));
+}

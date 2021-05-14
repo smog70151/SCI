@@ -24,38 +24,34 @@ SOFTWARE.
 
 #include "sci/LinearHE/utils-HE.h"
 
-class ElemWiseProdField { public:
-    int SCI_party;
-    sci::NetIO* io;
-    std::shared_ptr<seal::SEALContext> context;
-    seal::Encryptor* encryptor;
-    seal::Decryptor* decryptor;
-    seal::Evaluator* evaluator;
-    seal::BatchEncoder* encoder;
-    seal::GaloisKeys* gal_keys;
-    seal::Ciphertext* zero;
-    int slot_count;
+class ElemWiseProdField
+{
+public:
+        int SCI_party;
+        sci::NetIO *io;
+        std::shared_ptr<seal::SEALContext> context;
+        seal::Encryptor *encryptor;
+        seal::Decryptor *decryptor;
+        seal::Evaluator *evaluator;
+        seal::BatchEncoder *encoder;
+        seal::GaloisKeys *gal_keys;
+        seal::Ciphertext *zero;
+        int slot_count;
 
-    ElemWiseProdField(int SCI_party, sci::NetIO* io);
+        ElemWiseProdField(int SCI_party, sci::NetIO *io);
 
-    ~ElemWiseProdField();
+        ~ElemWiseProdField();
 
-    std::vector<uint64_t> ideal_functionality(
-            std::vector<uint64_t> &inArr,
-            std::vector<uint64_t> &multArr);
+        std::vector<uint64_t> ideal_functionality(std::vector<uint64_t> &inArr,
+                                                  std::vector<uint64_t> &multArr);
 
-    void elemwise_product(
-            int32_t size,
-            std::vector<uint64_t>& inArr,
-            std::vector<uint64_t>& multArr,
-            std::vector<uint64_t>& outputArr,
-            bool verify_output = false,
-            bool verbose = false);
+        void elemwise_product(int32_t size, std::vector<uint64_t> &inArr,
+                              std::vector<uint64_t> &multArr,
+                              std::vector<uint64_t> &outputArr,
+                              bool verify_output = false, bool verbose = false);
 
-    void verify(
-            std::vector<uint64_t> &inArr,
-            std::vector<uint64_t>* multArr,
-            std::vector<uint64_t> &outArr);
+        void verify(std::vector<uint64_t> &inArr, std::vector<uint64_t> *multArr,
+                    std::vector<uint64_t> &outArr);
 };
 
 #endif
